@@ -1,16 +1,19 @@
+from errors import DefaultExceptionHandler
+from middleware import Middleware
+from defaults import DefaultMiddleware
 from jinja2.loaders import FileSystemLoader
 from webob import Request, Response
 from cheroot.wsgi import Server
 from parse import parse
 from jinja2 import Environment, FileSystemLoader
-from errors import DefaultExceptionHandler
+from whitenoise import WhiteNoise
 import socket
 import inspect
 import os
 
 
 class App:
-    def __init__(self, templates_dir="templates", exception_handler=None):
+    def __init__(self, templates_dir="templates", static_dir="static", exception_handler=None):
         self.routes = {}
         self.host = "127.0.0.1"
         self.port = 5000
@@ -23,6 +26,12 @@ class App:
         else:
             self.exception_handler = exception_handler()
 
+        self.whitenoise = WhiteNoise(self.wsgi_app, root=static_dir)
+
+        self.middleware = Middleware(self)
+
+        self.add_middleware(DefaultMiddleware)
+
         self.server = Server(
             bind_addr=(self.host, self.port),
             wsgi_app=self,
@@ -30,12 +39,21 @@ class App:
             server_name=socket.gethostname()
         )
 
-    def __call__(self, environ, start_response):
+    def wsgi_app(self, environ, start_response):
         request = Request(environ)
 
         response = self.handle_request(request)
 
         return response(environ, start_response)
+
+    def __call__(self, environ, start_response):
+        path_info = environ["PATH_INFO"]
+
+        if path_info.startswith("/static") or path_info.startswith("static"):
+            environ["PATH_INFO"] = path_info[len("/static"):]
+            return self.whitenoise(environ, start_response)
+
+        return self.middleware(environ, start_response)
 
     def handle_request(self, request):
         response = Response()
@@ -91,6 +109,9 @@ class App:
             context = {}
 
         return self.templates_env.get_template(template_name).render(**context).encode()
+
+    def add_middleware(self, middleware_cls):
+        self.middleware.add(middleware_cls)
 
     def run(self):
         try:

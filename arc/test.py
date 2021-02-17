@@ -1,7 +1,7 @@
 from app import App
 
 
-app = App(templates_dir=r"arc\templates")
+app = App(templates_dir=r"arc\templates", static_dir=r"arc\static")
 
 
 @app.route("/home")
