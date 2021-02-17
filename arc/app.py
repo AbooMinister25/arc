@@ -1,14 +1,27 @@
+from jinja2.loaders import FileSystemLoader
 from webob import Request, Response
 from cheroot.wsgi import Server
 from parse import parse
+from jinja2 import Environment, FileSystemLoader
+from errors import DefaultExceptionHandler
 import socket
+import inspect
+import os
 
 
 class App:
-    def __init__(self):
+    def __init__(self, templates_dir="templates", exception_handler=None):
         self.routes = {}
         self.host = "127.0.0.1"
         self.port = 5000
+
+        self.templates_env = Environment(
+            loader=FileSystemLoader(os.path.abspath(templates_dir)))
+
+        if exception_handler is None:
+            self.exception_handler = DefaultExceptionHandler()
+        else:
+            self.exception_handler = exception_handler()
 
         self.server = Server(
             bind_addr=(self.host, self.port),
@@ -29,10 +42,20 @@ class App:
 
         handler, kwargs = self.find_handler(request_path=request.path)
 
-        if handler is not None:
-            handler(request, response, **kwargs)
-        else:
-            self.default_response(response)
+        try:
+            if handler is not None:
+                if inspect.isclass(handler):
+                    handler = getattr(handler(), request.method.lower(), None)
+                    if handler is None:
+                        raise AttributeError(
+                            "Method not allowed", request.method)
+
+                handler(request, response, **kwargs)
+            else:
+                self.default_response(response)
+
+        except Exception as e:
+            self.exception_handler.handle_error(request, response, e)
 
         return response
 
@@ -49,14 +72,25 @@ class App:
         return None, None
 
     def route(self, path):
-        
+
         assert path not in self.routes, f"Route {path} already exists"
-        
+
         def wrapper(handler):
-            self.routes[path] = handler
+            self.add_route(path, handler)
             return handler
 
         return wrapper
+
+    def add_route(self, path, handler):
+        assert path not in self.routes, f"Route {path} already exists"
+
+        self.routes[path] = handler
+
+    def template(self, template_name, context=None):
+        if context is None:
+            context = {}
+
+        return self.templates_env.get_template(template_name).render(**context).encode()
 
     def run(self):
         try:
@@ -64,5 +98,6 @@ class App:
             print(f"[INFO] Press CTRL + C to stop")
             self.server.start()
         except KeyboardInterrupt:
+            print("\n")
             print(f"[INFO] Exiting Application")
             self.server.stop()
