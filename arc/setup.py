@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="arcframework",  # Replace with your own username
-    version="1.1.5",
+    version="1.3.3",
     author="Rayyan Cyclegar",
     author_email="aboominister@gmail.com",
     description="A Python micro web framework for creating dynamic websites.",
@@ -21,5 +21,9 @@ setuptools.setup(
     python_requires='>=3.8',
     install_requires=[
         'webob', "cherrypy", "whitenoise", "parse", "jinja2"
-    ]
+    ],
+    include_package_data=True,
+    package_data={
+        "arc": ["selfpages/*.html", "static/*.css"],
+    }
 )

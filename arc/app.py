@@ -10,6 +10,7 @@ import socket
 import inspect
 import os
 import traceback
+import pathlib
 
 
 class App:
@@ -40,7 +41,8 @@ class App:
             request_queue_size=500,
             server_name=socket.gethostname()
         )
-
+        
+        
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
 
@@ -82,7 +84,7 @@ class App:
 
     def default_response(self, response):
         response.status_code = 404
-        response.body = self.template("error-404.html")
+        self.exception_handler.handle_404(response)
 
     def find_handler(self, request_path):
         for path, handler in self.routes.items():
@@ -117,7 +119,7 @@ class App:
         if context is None:
             context = {}
 
-        return Environment(loader=FileSystemLoader(os.path.abspath(templates_path))).get_template(template_name).render(**context).encode()
+        return Environment(loader=FileSystemLoader(templates_path)).get_template(template_name).render(**context).encode()
 
     def add_middleware(self, middleware_cls):
         self.middleware.add(middleware_cls)
@@ -126,6 +128,7 @@ class App:
         self.templates_env = Environment(
             loader=FileSystemLoader(os.path.abspath(templates_dir)))
         self.templates_dir = templates_dir
+            
 
     def run(self):
         try:
