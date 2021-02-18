@@ -1,5 +1,6 @@
 from arc.middleware import Middleware
 from arc.errors import AppException
+import os
 
 
 class DefaultMiddleware(Middleware):
@@ -13,7 +14,7 @@ class DefaultMiddleware(Middleware):
 class DefaultExceptionHandler:
     def __init__(self, app):
         self.app = app
-        app.templates_dir = r"arc\templates"
+        app.templates_dir = os.path.abspath("selfpages")
 
     def handle_error(self, request, response, error):
         response.status_code = 500
