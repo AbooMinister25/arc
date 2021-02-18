@@ -1,6 +1,5 @@
-from errors import DefaultExceptionHandler
 from middleware import Middleware
-from defaults import DefaultMiddleware
+from defaults import DefaultMiddleware, DefaultExceptionHandler
 from jinja2.loaders import FileSystemLoader
 from webob import Request, Response
 from cheroot.wsgi import Server
@@ -10,6 +9,8 @@ from whitenoise import WhiteNoise
 import socket
 import inspect
 import os
+import traceback
+import sys
 
 
 class App:
@@ -22,7 +23,7 @@ class App:
             loader=FileSystemLoader(os.path.abspath(templates_dir)))
 
         if exception_handler is None:
-            self.exception_handler = DefaultExceptionHandler()
+            self.exception_handler = DefaultExceptionHandler(self)
         else:
             self.exception_handler = exception_handler()
 
@@ -73,13 +74,14 @@ class App:
                 self.default_response(response)
 
         except Exception as e:
-            self.exception_handler.handle_error(request, response, e)
+            error = traceback.format_exc()
+            self.exception_handler.handle_error(request, response, error)
 
         return response
 
     def default_response(self, response):
         response.status_code = 404
-        response.text = f"Error 404, specified path not found on server"
+        response.body = self.template("error-404.html")
 
     def find_handler(self, request_path):
         for path, handler in self.routes.items():

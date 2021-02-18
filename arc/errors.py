@@ -1,10 +1,4 @@
-# from app import App
-
-
-class DefaultExceptionHandler:
-    def __init__(self):
-        # self.app = App(f"arc/templates")
-        ...
-    
-    def handle_error(self, request, response, error):
-        response.text = "ERROR"
+class AppException:
+    def __init__(self, app, error_pages={"404": "default", "500": "default"}):
+        self.app = app
+        self.error_pages = error_pages

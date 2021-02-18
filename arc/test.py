@@ -6,7 +6,7 @@ app = App(templates_dir=r"arc\templates", static_dir=r"arc\static")
 
 @app.route("/home")
 def home(request, response):
-    raise Exception("ERROR")
+    raise AssertionError("ERROR")
 
 
 @app.route("/hello/{name}")
