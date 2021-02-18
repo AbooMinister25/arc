@@ -1,5 +1,5 @@
 from arc.middleware import Middleware
-from arc.defaults import DefaultMiddleware, DefaultExceptionHandler
+from arc.defaults import DefaultMiddleware, DefaultExceptionHandler, TestClass
 from jinja2.loaders import FileSystemLoader
 from webob import Request, Response
 from cheroot.wsgi import Server
@@ -18,9 +18,11 @@ class App:
         self.routes = {}
         self.host = "127.0.0.1"
         self.port = 5000
+        
+        self.templates_dir = templates_dir
 
         self.templates_env = Environment(
-            loader=FileSystemLoader(os.path.abspath(templates_dir)))
+            loader=FileSystemLoader(os.path.abspath(self.templates_dir)))
 
         if exception_handler is None:
             self.exception_handler = DefaultExceptionHandler(self)
