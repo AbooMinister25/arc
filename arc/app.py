@@ -1,5 +1,5 @@
-from middleware import Middleware
-from defaults import DefaultMiddleware, DefaultExceptionHandler
+from arc.middleware import Middleware
+from arc.defaults import DefaultMiddleware, DefaultExceptionHandler
 from jinja2.loaders import FileSystemLoader
 from webob import Request, Response
 from cheroot.wsgi import Server

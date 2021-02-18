@@ -4,15 +4,15 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="arc",  # Replace with your own username
-    version="1.0.0",
+    name="arcframework",  # Replace with your own username
+    version="1.0.3",
     author="Rayyan Cyclegar",
     author_email="aboominister@gmail.com",
     description="A Python micro web framework for creating dynamic websites.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/AbooMinister25/arc",
-    packages=setuptools.find_packages(),
+    packages=["arc", ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
