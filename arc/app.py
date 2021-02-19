@@ -14,10 +14,10 @@ import pathlib
 
 
 class App:
-    def __init__(self, templates_dir="templates", static_dir="static", exception_handler=None):
+    def __init__(self, templates_dir="templates", static_dir="static", exception_handler=None, host="127.0.0.1", port=5000):
         self.routes = {}
-        self.host = "127.0.0.1"
-        self.port = 5000
+        self.host = host
+        self.port = port
 
         self.templates_dir = templates_dir
 
@@ -41,8 +41,7 @@ class App:
             request_queue_size=500,
             server_name=socket.gethostname()
         )
-        
-        
+
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
 
@@ -79,6 +78,8 @@ class App:
         except Exception as e:
             error = traceback.format_exc()
             self.exception_handler.handle_error(request, response, error)
+
+        self.cur_resp = response
 
         return response
 
@@ -128,7 +129,12 @@ class App:
         self.templates_env = Environment(
             loader=FileSystemLoader(os.path.abspath(templates_dir)))
         self.templates_dir = templates_dir
-            
+
+    def set_cookie(self, key, value, lifetime=None, secure=False):
+        if lifetime is not None:
+            self.cur_resp.set_cookie(key, value, secure=secure)
+        else:
+            self.cur_resp.set_cookie(key, value, expires=lifetime, secure=secure)
 
     def run(self):
         try:
