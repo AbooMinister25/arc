@@ -7,6 +7,7 @@
 * [Quickstart](#Quickstart)
 * [Routes](#Routes)
 * [Templates](#Templates)
+* [Sessions/Cookies](#Sessions/Cookies)
 
 
 
@@ -166,6 +167,34 @@ from arc import App
 app = App(static_dir="styles")
 ```
 Now, the code will serve static files from the `styles` directory.
+
+# Sessions/Cookies
+Arc has support for creating sessions, as well as cookies. Sessions are data that you can store, and which expire once the browser is closed. Copy and paste the below code into your python file.
+```py
+from arc import App, Session
+
+app = App()
+session = Session(app)
+
+@app.route("/")
+def setsession(req, res):
+    res.text = "Storing Session"
+    session["Data"] = "Arc is AMAZING"
+
+@app.route("/getsession")
+def getsession(req, res):
+    res.text = session["Data"]
+
+if __name__ == "__main__":
+    app.run()
+```
+Lets break this down. As you may have noticed, we imported another class, the `Session` class, which is used for creating and storing sessions. It takes `app` as an argument. The `Session` class behaves like a dictionary, and data is stored in key/value pairs. Now run the code you just copied, and head to http://127.0.0.1:5000. Once you've head there, head to http://127.0.0.1:5000/getsession. Once you've done that, the text `Arc is AMAZING` should show up on screen. Keep in mind that if you head to the `/getsession` route before the `/` route, this code will raise an error, as the session key `Data` has not yet been created. By default, sessions expire when you close the webpage, but you can change that as per the following.
+```py
+from arc import App, Session
+import datetime
+
+app = App()
+session = Session(app, lifetime=datetime.timedelta(minutes=60))
 
 # Afterword
 Hey, glad you made it this far, Arc is still under heavy development, and I'm still adding more features and bug fixes. If you find any bugs or problems in your code, feel free to open an issue or email me at aboominister@gmail.com. All help is appreciated. A full API reference is coming soon. Thanks :D

@@ -19,6 +19,9 @@ class App:
         self.host = host
         self.port = port
 
+        self.cur_resp = None
+        self.cur_req = None
+
         self.templates_dir = templates_dir
 
         self.templates_env = Environment(
@@ -61,6 +64,9 @@ class App:
     def handle_request(self, request):
         response = Response()
 
+        self.cur_req = request
+        self.cur_resp = response
+
         handler, kwargs = self.find_handler(request_path=request.path)
 
         try:
@@ -78,8 +84,6 @@ class App:
         except Exception as e:
             error = traceback.format_exc()
             self.exception_handler.handle_error(request, response, error)
-
-        self.cur_resp = response
 
         return response
 
@@ -134,7 +138,18 @@ class App:
         if lifetime is not None:
             self.cur_resp.set_cookie(key, value, secure=secure)
         else:
-            self.cur_resp.set_cookie(key, value, expires=lifetime, secure=secure)
+            self.cur_resp.set_cookie(
+                key, value, expires=lifetime, secure=secure)
+
+    def get_cookies(self):
+        return self.cur_req.cookies
+
+    def get_cookie(self, key):
+        cookies = {}
+        for key, value in dict(self.cur_req.cookies):
+            if key not in ["hblid", "olfsk"]:
+                cookies[key] = value
+        return cookies
 
     def run(self):
         try:
