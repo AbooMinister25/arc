@@ -145,11 +145,7 @@ class App:
         return self.cur_req.cookies
 
     def get_cookie(self, key):
-        cookies = {}
-        for key, value in dict(self.cur_req.cookies):
-            if key not in ["hblid", "olfsk"]:
-                cookies[key] = value
-        return cookies
+        return self.cur_req.cookies()
 
     def run(self):
         try:
