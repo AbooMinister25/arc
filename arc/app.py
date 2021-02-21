@@ -14,7 +14,7 @@ import pathlib
 
 
 class App:
-    def __init__(self, templates_dir="templates", static_dir="static", exception_handler=None, host="127.0.0.1", port=5000):
+    def __init__(self, templates_dir="templates", static_dir="static", exception_handler=None, host="127.0.0.1", port=5000, default_middleware=True):
         self.routes = {}
         self.host = host
         self.port = port
@@ -35,8 +35,9 @@ class App:
         self.whitenoise = WhiteNoise(self.wsgi_app, root=static_dir)
 
         self.middleware = Middleware(self)
-
-        self.add_middleware(DefaultMiddleware)
+        
+        if default_middleware:
+            self.add_middleware(DefaultMiddleware)
 
         self.server = Server(
             bind_addr=(self.host, self.port),
@@ -156,3 +157,4 @@ class App:
             print("\n")
             print(f"[INFO] Exiting Application")
             self.server.stop()
+
