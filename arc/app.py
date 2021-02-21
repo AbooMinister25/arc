@@ -134,18 +134,18 @@ class App:
             loader=FileSystemLoader(os.path.abspath(templates_dir)))
         self.templates_dir = templates_dir
 
-    def set_cookie(self, key, value, lifetime=None, secure=False):
+    def set_cookie(self, key, value, resp, lifetime=None, secure=False):
         if lifetime is not None:
-            self.cur_resp.set_cookie(key, value, secure=secure)
+            resp.set_cookie(key, value, secure=secure)
         else:
-            self.cur_resp.set_cookie(
-                key, value, expires=lifetime, secure=secure)
+            resp.set_cookie(
+                key, value, max_age=lifetime, secure=secure)
 
-    def get_cookies(self):
-        return self.cur_req.cookies
+    def get_cookies(self, req):
+        return req.cookies
 
-    def get_cookie(self, key):
-        return self.cur_req.cookies()
+    def get_cookie(self, key, req):
+        return dict(req.cookies)[key]
 
     def run(self):
         try:
