@@ -35,9 +35,11 @@ class App:
         self.whitenoise = WhiteNoise(self.wsgi_app, root=static_dir)
 
         self.middleware = Middleware(self)
-        
+
         if default_middleware:
             self.add_middleware(DefaultMiddleware)
+
+        self.collections = []
 
         self.server = Server(
             bind_addr=(self.host, self.port),
@@ -148,6 +150,17 @@ class App:
     def get_cookie(self, key, req):
         return dict(req.cookies)[key]
 
+    def register_collection(self, collection):
+        assert collection not in self.collections, f"Collection {collection} already registered"
+        collection.set_wsgi(self.wsgi_app)
+        for path in collection.routes.keys():
+            assert path not in self.routes, f"Route {path} already exists"
+
+            self.routes[path] = collection.routes[path]
+
+        self.routes.update(collection.routes)
+        self.collections.append(collection)
+
     def run(self):
         try:
             print(f"[INFO] Running on http://{self.host}:{self.port}")
@@ -157,4 +170,3 @@ class App:
             print("\n")
             print(f"[INFO] Exiting Application")
             self.server.stop()
-
