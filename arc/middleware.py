@@ -25,3 +25,4 @@ class Middleware:
         self.process_response(request, response)
 
         return response
+ 
