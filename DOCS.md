@@ -2,11 +2,6 @@
 
 ### Arc is a python micro web framework designed for creating dynamic web applications.
 
-toctree:: 
-    test
-    test
-    test
-
 # Contents
 * [Installation](#Installation)
 * [Quickstart](#Quickstart)
