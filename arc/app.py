@@ -2,7 +2,7 @@ from arc.middleware import Middleware
 from arc.defaults import DefaultMiddleware, DefaultExceptionHandler
 from jinja2.loaders import FileSystemLoader
 from webob import Request, Response
-from cheroot.wsgi import Server
+import uvicorn
 from parse import parse
 from jinja2 import Environment, FileSystemLoader
 from whitenoise import WhiteNoise
@@ -220,7 +220,7 @@ class App:
         try:
             print(f"[INFO] Running on http://{self.host}:{self.port}")
             print(f"[INFO] Press CTRL + C to stop")
-            self.server.start()
+            uvicorn.run()
         except KeyboardInterrupt:
             print("\n")
             print(f"[INFO] Exiting Application")
