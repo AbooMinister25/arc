@@ -1,7 +1,7 @@
 # Arc 1.5.0
 ### Python micro web framework for creating dynamic websites.
 
-Arc is a python micro framework for creating dynamic web pages. Arc is still under heavy devlopment, and only has support for basic templating and page rendering at the moment. The eventual plan is to make arc able to create web pages with minmial need for coding any frontend yourself. Arc is powered by a CherryPy web server, making it both fast and reliable. You can use any WSGI web server to run an Arc application.
+Arc is a python micro framework for creating dynamic web pages. Arc is still under heavy devlopment, and only has support for basic jinja templating and static file serving at the moment. Arc is powered by a CherryPy web server, making it both fast and reliable. You can use any WSGI web server to run an Arc application.
 
 ## Installation
 Arc is relatively easy to get set up with. Arc is cross platform, and can be installed on any operating system. You can install it using pip.
@@ -35,4 +35,4 @@ Copy and paste the above and run your file, you'll get an output like the follow
 Now go to http://127.0.0.1:5000/home, and you should see `Hello World` being displayed on the screen.
 
 ## Issues/Bugs
-Arc is still under heavy development, and I do not recommend you using it in actual production until its finished. Arc has loads of bugs and errors I'm constantly working on resolving. Feel free to open an issue or email me at aboominister@gmail.com, all help would be appreciated.
+Arc is still under heavy development, and I do not recommend you using it in actual production until its finished. Arc has loads of bugs and errors I'm constantly working on resolving. You can check out the documentation at DOCS.md. Feel free to open an issue or email me at aboominister@gmail.com, all help would be appreciated.

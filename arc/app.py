@@ -10,17 +10,71 @@ import socket
 import inspect
 import os
 import traceback
-import pathlib
 
 
 class App:
+    """
+    The base App object. This object creates a WSGI application, and is used as the base object for creating routes, views, 
+    templating, and more. Basic usage is as the following:: 
+    
+    from arc import App
+    
+    app = App()
+    
+    @app.route("/")
+    def index(req, res):
+        res.text = 'Hello, World'
+    
+    if __name__ == "__main__":
+        app.run()
+    
+    The app has several optional parameters.
+    
+    ..templates_dir ::
+        This parameter is used to specify the directory that jinja loads its HTML templates from. Its defaulted to 
+        the 'templates' directory, but you can change it as the following::
+        
+        app = App(templates_dir="public")
+        
+    ..static_dir ::
+        This parameter is used to specify the directory that static files are served from. Its defaulted to the
+        'static' folder. You can change it as the following::
+        
+        app = App(static_dir="css")
+        
+    ..exception_handler ::
+        This parameter is used to specify a custom exception handler for the app to use instead of the default
+        one. It uses the base AppException class. It's defaulted to None, which causes the app to use the
+        default exception handler. It can be changed as the following::
+        
+        app = App(exception_handler=CustomExceptionHandler)
+        
+    ..host ::
+        This parameter is used to specify the host that the app will run on. Its defaulted 
+        to '127.0.0.1'. It can be changed as the following::
+        
+        app = App(host="181.177.121.773")
+        
+    ..port ::
+        This parameter is used to specify which port the app will listen on. Its defaulted to 
+        port `5000`. You can change it as the following::
+
+        app = App(port=8000)
+    
+    ..default_middleware
+        This parameter specifies whether the app should use the default middleware, which logs requests and
+        responses into the console. Its set to True by default. You can change it as the following::
+        
+        app = App(default_middleware=False)
+    """
     def __init__(self, templates_dir="templates", static_dir="static", exception_handler=None, host="127.0.0.1", port=5000, default_middleware=True):
         self.routes = {}
+        
+        #The host
         self.host = host
+        
+        #The port
         self.port = port
-
-        self.cur_resp = None
-        self.cur_req = None
 
         self.templates_dir = templates_dir
 
@@ -47,6 +101,7 @@ class App:
             request_queue_size=500,
             server_name=socket.gethostname()
         )
+
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
