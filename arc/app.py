@@ -223,4 +223,4 @@ class App:
     def run(self):
         print(f"[INFO] Running on http://{self.host}:{self.port}")
         print(f"[INFO] Press CTRL + C to stop")
-        uvicorn.run(f'{os.path.basename(inspect.stack()[1][1]).replace(".py", "")}:{self.name}', host="127.0.0.1", port=5000, log_level="error", interface="wsgi")
+        uvicorn.run(self, host="127.0.0.1", port=5000, log_level="error", interface="wsgi")
