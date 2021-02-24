@@ -19,7 +19,7 @@ class App:
     
     from arc import App
     
-    app = App()
+    app = App("app")
     
     @app.route("/")
     def index(req, res):
@@ -28,7 +28,14 @@ class App:
     if __name__ == "__main__":
         app.run()
     
-    The app has several optional parameters.
+    The app has several parameters.
+    
+    ..name ::
+        This paramter is used to specifiy the apps name. It is required, and has to be the same as the variable name
+        you assigned the App class to.
+        
+        app = App("app")
+        
     
     ..templates_dir ::
         This parameter is used to specify the directory that jinja loads its HTML templates from. Its defaulted to 
@@ -67,8 +74,10 @@ class App:
         
         app = App(default_middleware=False)
     """
-    def __init__(self, templates_dir="templates", static_dir="static", exception_handler=None, host="127.0.0.1", port=5000, default_middleware=True):
+    def __init__(self, name, templates_dir="templates", static_dir="static", exception_handler=None, host="127.0.0.1", port=5000, default_middleware=True):
         self.routes = {}
+        
+        self.name = name
         
         #The host
         self.host = host
@@ -95,12 +104,7 @@ class App:
 
         self.collections = []
 
-        self.server = Server(
-            bind_addr=(self.host, self.port),
-            wsgi_app=self,
-            request_queue_size=500,
-            server_name=socket.gethostname()
-        )
+
 
 
     def wsgi_app(self, environ, start_response):
@@ -217,11 +221,6 @@ class App:
         self.collections.append(collection)
 
     def run(self):
-        try:
-            print(f"[INFO] Running on http://{self.host}:{self.port}")
-            print(f"[INFO] Press CTRL + C to stop")
-            uvicorn.run()
-        except KeyboardInterrupt:
-            print("\n")
-            print(f"[INFO] Exiting Application")
-            self.server.stop()
+        print(f"[INFO] Running on http://{self.host}:{self.port}")
+        print(f"[INFO] Press CTRL + C to stop")
+        uvicorn.run(f'{os.path.basename(inspect.stack()[1][1]).replace(".py", "")}:{self.name}', host="127.0.0.1", port=5000, log_level="error", interface="wsgi")
