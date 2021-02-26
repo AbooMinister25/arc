@@ -1,7 +1,7 @@
 from arc.middleware import Middleware
 from arc.defaults import DefaultMiddleware, DefaultExceptionHandler
 from jinja2.loaders import FileSystemLoader
-from falcon import Request, Response
+from starlette.requests import Request
 import uvicorn
 from parse import parse
 from jinja2 import Environment, FileSystemLoader
@@ -105,29 +105,24 @@ class App:
 
         self.collections = []
 
-    def wsgi_app(self, environ, start_response):
-        request = Request(environ)
+    async def wsgi_app(self, scope, recieve, send):
+        request = Request(scope, recieve=recieve)
 
         response = self.handle_request(request)
 
-        return response(environ, start_response)
+        await response(scope, recieve, send)
 
-    def __call__(self, environ, start_response):
-        path_info = environ["PATH_INFO"]
+    def __call__(self, scope, recieve, send):
+        path_info = scope["path"]
 
         if path_info.startswith("/static") or path_info.startswith("static"):
-            environ["PATH_INFO"] = path_info[len("/static"):]
+            scope["PATH_INFO"] = path_info[len("/static"):]
             return self.whitenoise(environ, start_response)
 
         return self.middleware(environ, start_response)
 
     def handle_request(self, request):
-        response = Response()
-
-        self.cur_req = request
-        self.cur_resp = response
-
-        handler, kwargs = self.find_handler(request_path=request.path)
+        handler, kwargs = self.find_handler(request_path=request.url.path)
 
         try:
             if handler is not None:
@@ -137,19 +132,18 @@ class App:
                         raise AttributeError(
                             "Method not allowed", request.method)
 
-                handler(request, response, **kwargs)
+                response = handler(request, **kwargs)
             else:
-                self.default_response(response)
+                self.default_response()
 
         except Exception as e:
             error = traceback.format_exc()
-            self.exception_handler.handle_error(request, response, error)
+            self.exception_handler.handle_error(request, error)
 
         return response
 
-    def default_response(self, response):
-        response.status_code = 404
-        self.exception_handler.handle_404(response)
+    def default_response(self):
+        self.exception_handler.handle_404()
 
     def find_handler(self, request_path):
         for path, handler in self.routes.items():
