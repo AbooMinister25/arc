@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="arcframework",  # Replace with your own username
-    version="1.6.1",
+    version="1.6.7",
     author="Rayyan Cyclegar",
     author_email="aboominister@gmail.com",
     description="A Python micro web framework for creating dynamic websites.",

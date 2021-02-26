@@ -75,10 +75,8 @@ class App:
         app = App(default_middleware=False)
     """
 
-    def __init__(self, name, templates_dir="templates", static_dir="static", exception_handler=None, host="127.0.0.1", port=5000, default_middleware=True):
+    def __init__(self, templates_dir="templates", static_dir="static", exception_handler=None, host="127.0.0.1", port=5000, default_middleware=True):
         self.routes = {}
-
-        self.name = name
 
         # The host
         self.host = host
@@ -112,14 +110,14 @@ class App:
 
         await response(scope, recieve, send)
 
-    def __call__(self, scope, recieve, send):
+    async def __call__(self, scope, recieve, send):
         path_info = scope["path"]
 
-        if path_info.startswith("/static") or path_info.startswith("static"):
-            scope["PATH_INFO"] = path_info[len("/static"):]
-            return self.whitenoise(environ, start_response)
+        # if path_info.startswith("/static") or path_info.startswith("static"):
+        #     scope["PATH_INFO"] = path_info[len("/static"):]
+        #     return self.whitenoise(environ, start_response)
 
-        return self.middleware(environ, start_response)
+        await self.middleware(scope, recieve, send)
 
     def handle_request(self, request):
         handler, kwargs = self.find_handler(request_path=request.url.path)
@@ -138,7 +136,7 @@ class App:
 
         except Exception as e:
             error = traceback.format_exc()
-            self.exception_handler.handle_error(request, error)
+            response = self.exception_handler.handle_error(error)
 
         return response
 
@@ -216,4 +214,4 @@ class App:
         print(f"[INFO] Running on http://{self.host}:{self.port}")
         print(f"[INFO] Press CTRL + C to stop")
         uvicorn.run(self, host="127.0.0.1", port=5000,
-                    log_level="critical", interface="wsgi")
+                    log_level="critical")
