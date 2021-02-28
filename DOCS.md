@@ -118,7 +118,7 @@ template = Template()
 
 @app.route("/")
 def index(request):
-    return Template("index.html", context={"request": request, "title": "Templates", "heading": "Arc is AMAZING"})
+    return template("index.html", context={"request": request, "title": "Templates", "heading": "Arc is AMAZING"})
 
 if __name__ == "__main__":
     app.run()
