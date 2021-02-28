@@ -1,9 +1,9 @@
 from arc.middleware import Middleware
 from arc.errors import AppException
+from arc.templates import Template
 import os
-from jinja2 import Environment, FileSystemLoader
-from jinja2.loaders import FileSystemLoader
-from starlette.responses import PlainTextResponse
+import logging
+
 
 
 class DefaultMiddleware(Middleware):
@@ -19,18 +19,10 @@ class DefaultExceptionHandler:
         self.app = app
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
         self.path = os.path.join(self.dir_path, "selfpages")
-        self.errors_env = Environment(
-            loader=FileSystemLoader(os.path.join(self.dir_path, "selfpages")))
+        self.template = Template(self.path)
 
-    def handle_error(self, error):
-        return PlainTextResponse("ERROR: \n", error)
-        
-        
-        # response.body = self.errors_env.get_template(
-        #     "error-500.html").render({"error": error}).encode()
+    def handle_error(self, request, error: str):
+        return self.template("error-500.html", context={"request": request, "error": error})
 
-    def handle_404(self):
-        return PlainTextResponse("ERROR 404")
-
-        # response.body = self.errors_env.get_template(
-        #     "error-404.html").render().encode()
+    def handle_404(self, request):
+        return self.template("error-404.html", context={"request": request})

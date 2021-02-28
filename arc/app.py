@@ -2,13 +2,9 @@ from arc.middleware import Middleware
 from arc.defaults import DefaultMiddleware, DefaultExceptionHandler
 from arc.staticfiles import StaticFile
 from jinja2.loaders import FileSystemLoader
-from starlette.requests import Request
-from starlette.staticfiles import StaticFiles
 import uvicorn
 from parse import parse
 from jinja2 import Environment, FileSystemLoader
-from whitenoise import WhiteNoise
-import socket
 import inspect
 import os
 import traceback
@@ -88,43 +84,24 @@ class App:
 
         self.templates_dir = templates_dir
 
-        self.templates_env = Environment(
-            loader=FileSystemLoader(os.path.abspath(self.templates_dir)))
-
         if exception_handler is None:
             self.exception_handler = DefaultExceptionHandler(self)
         else:
             self.exception_handler = exception_handler()
 
-        self.whitenoise = WhiteNoise(self.wsgi_app, root=static_dir)
-
-        self.static_app = StaticFiles(directory=static_dir)
-
         self.middleware = Middleware(self)
 
         if default_middleware:
             self.add_middleware(DefaultMiddleware)
-        
-        self.static_test = StaticFile(static_dir)
+
+        self.static_app = StaticFile(static_dir)
 
         self.collections = []
 
-        # def serve_static(self, scope, recieve, send, path):
-        #     ...
+        self.add_route("/static/{filename}", self.static_app)
 
-        # self.add_route("/static", self.static_app)
-        
-        self.add_route("/static/{filename}", self.static_test)
-
-    async def wsgi_app(self, scope, recieve, send):
-        request = Request(scope, recieve=recieve)
-
-        response = self.handle_request(request)
-
-        await response(scope, recieve, send)
-
-    async def __call__(self, scope, recieve, send):
-        await self.middleware(scope, recieve, send)
+    async def __call__(self, scope, receive, send):
+        await self.middleware(scope, receive, send)
 
     def handle_request(self, request):
         handler, kwargs = self.find_handler(request_path=request.url.path)
@@ -139,16 +116,16 @@ class App:
 
                 response = handler(request, **kwargs)
             else:
-                return self.default_response()
+                return self.default_response(request)
 
         except Exception as e:
             error = traceback.format_exc()
-            response = self.exception_handler.handle_error(error)
+            response = self.exception_handler.handle_error(request, error)
 
         return response
 
-    def default_response(self):
-        return self.exception_handler.handle_404()
+    def default_response(self, request):
+        return self.exception_handler.handle_404(request)
 
     def find_handler(self, request_path):
         for path, handler in self.routes.items():
@@ -173,18 +150,6 @@ class App:
 
         self.routes[path] = handler
 
-    def template(self, template_name, context=None):
-        if context is None:
-            context = {}
-
-        return self.templates_env.get_template(template_name).render(**context).encode()
-
-    def custom_template(self, templates_path, template_name, context=None):
-        if context is None:
-            context = {}
-
-        return Environment(loader=FileSystemLoader(templates_path)).get_template(template_name).render(**context).encode()
-
     def add_middleware(self, middleware_cls):
         self.middleware.add(middleware_cls)
 
@@ -192,19 +157,6 @@ class App:
         self.templates_env = Environment(
             loader=FileSystemLoader(os.path.abspath(templates_dir)))
         self.templates_dir = templates_dir
-
-    def set_cookie(self, key, value, resp, lifetime=None, secure=False):
-        if lifetime is not None:
-            resp.set_cookie(key, value, secure=secure)
-        else:
-            resp.set_cookie(
-                key, value, max_age=lifetime, secure=secure)
-
-    def get_cookies(self, req):
-        return req.cookies
-
-    def get_cookie(self, key, req):
-        return dict(req.cookies)[key]
 
     def register_collection(self, collection):
         assert collection not in self.collections, f"Collection {collection} already registered"

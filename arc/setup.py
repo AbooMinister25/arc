@@ -20,7 +20,7 @@ setuptools.setup(
     ],
     python_requires='>=3.8',
     install_requires=[
-        'webob', "uvicorn", "whitenoise", "parse", "jinja2"
+        "uvicorn", "parse", "jinja2", "starlette"
     ],
     include_package_data=True,
     package_data={

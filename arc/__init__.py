@@ -5,3 +5,4 @@ from arc.defaults import *
 from arc.sessions import *
 from arc.collections import *
 from arc.cli import *
+from arc.templates import *
