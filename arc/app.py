@@ -1,6 +1,7 @@
 from arc.middleware import Middleware
-from arc.defaults import DefaultMiddleware, DefaultExceptionHandler
+from arc.defaults import LoggingMiddleware, DefaultExceptionHandler
 from arc.staticfiles import StaticFile
+from arc.logger import Logger
 from jinja2.loaders import FileSystemLoader
 import uvicorn
 from parse import parse
@@ -17,7 +18,7 @@ class App:
 
     from arc import App
 
-    app = App("app")
+    app = App()
 
     @app.route("/")
     def index(req, res):
@@ -27,13 +28,6 @@ class App:
         app.run()
 
     The app has several parameters.
-
-    ..name ::
-        This paramter is used to specifiy the apps name. It is required, and has to be the same as the variable name
-        you assigned the App class to.
-
-        app = App("app")
-
 
     ..templates_dir ::
         This parameter is used to specify the directory that jinja loads its HTML templates from. Its defaulted to 
@@ -66,14 +60,20 @@ class App:
 
         app = App(port=8000)
 
-    ..default_middleware
-        This parameter specifies whether the app should use the default middleware, which logs requests and
-        responses into the console. Its set to True by default. You can change it as the following::
+    ..logging
+        This parameter specifies whether the apps default logger should be activated. It can
+        be deactivated as the following::
 
-        app = App(default_middleware=False)
+        app = App(logging=False)
+
+    ..logger
+        If the default logger is enabled, it specifies the logger the app should use.
+        It can be changed as the following::
+
+        app = App(logger=MyCustomLogger())
     """
 
-    def __init__(self, templates_dir="templates", static_dir="static", exception_handler=None, host="127.0.0.1", port=5000, default_middleware=True):
+    def __init__(self, templates_dir: str = "templates", static_dir: str = "static", exception_handler=None, host: str = "127.0.0.1", port=5000, logging=True, logger=Logger()):
         self.routes = {}
 
         # The host
@@ -91,14 +91,16 @@ class App:
 
         self.middleware = Middleware(self)
 
-        if default_middleware:
-            self.add_middleware(DefaultMiddleware)
+        if logging:
+            self.add_middleware(LoggingMiddleware)
 
         self.static_app = StaticFile(static_dir)
 
         self.collections = []
 
         self.add_route("/static/{filename}", self.static_app)
+
+        self.logger = logger
 
     async def __call__(self, scope, receive, send):
         await self.middleware(scope, receive, send)
@@ -108,11 +110,11 @@ class App:
 
         try:
             if handler is not None:
-                if inspect.isclass(handler):
-                    handler = getattr(handler(), request.method.lower(), None)
-                    if handler is None:
-                        raise AttributeError(
-                            "Method not allowed", request.method)
+                # if inspect.isclass(handler):
+                #     handler = getattr(handler(), request.method.lower(), None)
+                #     if handler is None:
+                #         raise AttributeError(
+                #             "Method not allowed", request.method)
 
                 response = handler(request, **kwargs)
             else:
@@ -153,14 +155,8 @@ class App:
     def add_middleware(self, middleware_cls):
         self.middleware.add(middleware_cls)
 
-    def change_template_env(self, templates_dir):
-        self.templates_env = Environment(
-            loader=FileSystemLoader(os.path.abspath(templates_dir)))
-        self.templates_dir = templates_dir
-
     def register_collection(self, collection):
         assert collection not in self.collections, f"Collection {collection} already registered"
-        collection.set_wsgi(self.wsgi_app)
         for path in collection.routes.keys():
             assert path not in self.routes, f"Route {path} already exists"
 
@@ -170,7 +166,8 @@ class App:
         self.collections.append(collection)
 
     def run(self):
-        print(f"[INFO] Running on http://{self.host}:{self.port}")
-        print(f"[INFO] Press CTRL + C to stop")
+        self.logger.log(f"Running on http://{self.host}:{self.port}", "info")
+        self.logger.log(f"Press CTRL + C to stop", "info")
         uvicorn.run(self, host="127.0.0.1", port=5000,
                     log_level="critical")
+        self.logger.log("Exiting Application", "critical")

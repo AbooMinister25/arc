@@ -2,16 +2,14 @@ from arc.middleware import Middleware
 from arc.errors import AppException
 from arc.templates import Template
 import os
-import logging
 
 
-
-class DefaultMiddleware(Middleware):
+class LoggingMiddleware(Middleware):
     def process_request(self, req):
-        print(f"\n[REQUEST][{req.method}] {req.url}")
+        self.app.logger.log(f"[REQUEST][{req.method}] {req.url}", "info")
 
     def process_response(self, req, res):
-        print(f"\n[RESPONSE] {req.url}")
+        self.app.logger.log(f"[RESPONSE] {req.url}", "info")
 
 
 class DefaultExceptionHandler:
@@ -22,7 +20,9 @@ class DefaultExceptionHandler:
         self.template = Template(self.path)
 
     def handle_error(self, request, error: str):
+        self.app.logger.log(error, "error")
         return self.template("error-500.html", context={"request": request, "error": error})
 
     def handle_404(self, request):
+        self.app.logger.log(f"{request.url.path} not found", "error")
         return self.template("error-404.html", context={"request": request})
