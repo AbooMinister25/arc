@@ -2,12 +2,8 @@ from arc.middleware import Middleware
 from arc.defaults import LoggingMiddleware, DefaultExceptionHandler
 from arc.staticfiles import StaticFile
 from arc.logger import Logger
-from jinja2.loaders import FileSystemLoader
 import uvicorn
 from parse import parse
-from jinja2 import Environment, FileSystemLoader
-import inspect
-import os
 import traceback
 
 
@@ -73,7 +69,7 @@ class App:
         app = App(logger=MyCustomLogger())
     """
 
-    def __init__(self, templates_dir: str = "templates", static_dir: str = "static", exception_handler=None, host: str = "127.0.0.1", port=5000, logging=True, logger=Logger()):
+    def __init__(self, static_dir: str = "static", exception_handler=None, host: str = "127.0.0.1", port=5000, logging=True, logger=Logger()):
         self.routes = {}
 
         # The host
@@ -81,8 +77,6 @@ class App:
 
         # The port
         self.port = port
-
-        self.templates_dir = templates_dir
 
         if exception_handler is None:
             self.exception_handler = DefaultExceptionHandler(self)
@@ -154,6 +148,15 @@ class App:
 
     def add_middleware(self, middleware_cls):
         self.middleware.add(middleware_cls)
+
+    def to_seconds(self, time: int, type) -> int:
+        if type.lower() not in ["hour", "minute"]:
+            raise ValueError("Invalid type given")
+
+        if type.lower() == "hour":
+            return time * 60
+        elif type.lower() == "minute":
+            return time * 3600
 
     def register_collection(self, collection):
         assert collection not in self.collections, f"Collection {collection} already registered"

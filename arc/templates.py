@@ -5,7 +5,7 @@ import typing
 
 
 class Template:
-    def __init__(self, directory: str) -> None:
+    def __init__(self, directory: str = "templates") -> None:
         self.env = self.get_env(directory)
 
     def get_env(self, directory: str) -> "Environment":

@@ -1,15 +1,21 @@
 # Arc Documentation
 
-### Arc is a python micro web framework designed for creating dynamic web applications.
+### Arc is a python ASGI web framework for creating fast and dynamic web applications.
 
 # Contents
-* [Installation](#Installation)
-* [Quickstart](#Quickstart)
-* [Routes](#Routes)
-* [Templates](#Templates)
-* [Sessions/Cookies](#Sessions/Cookies)
-* [Middleware](#Middleware)
-* [Collections](#Collections)
+- [Arc Documentation](#arc-documentation)
+    - [Arc is a python ASGI web framework for creating fast and dynamic web applications.](#arc-is-a-python-asgi-web-framework-for-creating-fast-and-dynamic-web-applications)
+- [Contents](#contents)
+- [Installation](#installation)
+- [Quickstart](#quickstart)
+- [Routes](#routes)
+- [Templates](#templates)
+  - [Serving static files](#serving-static-files)
+- [Sessions/Cookies](#sessionscookies)
+- [Middleware](#middleware)
+- [Collections](#collections)
+- [Responses](#responses)
+- [Afterword](#afterword)
 
 
 
@@ -29,13 +35,13 @@ pip3 install arcframework
 # Quickstart
 Arc is very straightforward and simple to use, and its structured similarly to other micro frameworks such as Flask or Bottle. Once you've installed Arc, copy and paste the below code into your editor.
 ```py
-from arc import App
+from arc import App, TextResponse
 
 app = App()
 
 @app.route("/")
-def home(req, res):
-    res.text = "Hello, World"
+def home(request):
+    return TextResponse("Hello, World")
 
 if __name__ == "__main__": 
     app.run()
@@ -45,42 +51,37 @@ Alright, lets break this code down. Arc has a single `App` module that you need 
 [INFO] Running on http://127.0.0.1:5000
 [INFO] Press CTRL + C to stop
 ```
-Don't worry if you see the below warning.
-```
-C:\Users\aboom\AppData\Local\Programs\Python\Python38\lib\site-packages\whitenoise\base.py:115: UserWarning: No directory at: D:\Projects\Test\static\
-  warnings.warn(u"No directory at: {}".format(root))
-```
 Great, you've successfully run your web application! Head over to http://127.0.0.1:5000 to see your web application in action. Once you're there, you should see the text `Hello World` displayed on the screen.
 
 # Routes
 If you've used a web framework before, you know that you have to define routes in your application. Routes are sort of like highways that send requests to the code that handles them. In Arc, there are two ways you can create routes, one of which uses decorators, similar to Flask and Bottle, and the other takes inspiration from Django. Below is how you can create routes using decorators.
 ```py
-from arc import App
+from arc import App, TextResponse
 
 app = App()
 
 @app.route("/home")
-def home(req, res):
-    res.text = "Welcome to the home page"
+def home(request):
+    return TextResponse("Welcome to the home page")
 
 @app.route("/")
-def index(req, res):
-    res.text = "Go to http://localhost:5000/home to see the home page"
+def index(request):
+    return TextResponse("Go to http://localhost:5000/home to see the home page")
 
 if __name__ == "__main__":
     app.run()
 ```
 The above code is signifying two different routes. One of which is `/home`, which executes the code in the `home()` function defined here. Another specifies the `/` route, which is just http://localhost:5000. If you prefer a more Django like routing style, you can do the below.
 ```py
-from arc import App
+from arc import App, TextResponse
 
 app = App()
 
-def home(req, res):
-    res.text = "Welcome to the home page"
+def home(request):
+    return TextResponse("Welcome to the home page")
 
-def index(req, res):
-    res.text = "Go to http://localhost:5000/home to see the home page"
+def index(request):
+    return TextResponse("Go to http://localhost:5000/home to see the home page")
 
 app.add_route("/home", home)
 app.add_route("/", index)
@@ -90,25 +91,10 @@ if __name__ == "__main__":
 ```
 The above does the exact same thing as the first example with decorators, but instead of a decorator based routing system, we're using the `App` class's `.add_route` method. Now lets take a closer look at the handlers. A basic handler is structured as the following.
 ```py
-def handler_name(req, res):
+def handler_name(request):
     # handler code
 ```
-You have a function name, which you can define as anything you want, two parameteres, which represent `request` and `response`, and the contents of the handler, which decide what to do. Adding content to the web pages uses the `response` parameter, where you can declare to body or the text of the web page. You can use the `req` parameter to see whether the request is a `GET` or `POST` request, among other things. Arc also supports class based handlers, as per the following.
-```py
-from arc import App
-
-app = App()
-
-@app.route("/classhandler")
-class ClassHandler:
-    def get(self, req, res):
-        res.text = "You issued a GET request"
-    
-    def post(self, req, res):
-        res.text = "You issued a POST request"
-```
-Using class based handlers makes it easier to specify what happens when you issue different types of requests.
-
+You have a function name, which you can define as anything you want, one parameter, which represent the `request`, and the contents of the handler, which decide what to do. You can use different response types to add content to the web page.
 # Templates
 Like any other web framework, Arc has support for HTML templates, and uses jinja2 for templating. If you've ever used Flask, this should be very familiar, as Flask uses jinja2's templating syntax as well. Arc has a very straightforward way for creating templates. First, create a `templates` directory in your current working folder. Jinja2 will search for templates in a `templates` directory, though you are able to change that. Inside the `templates` directory you just created, make an `index.html` file, and copy and paste the following content into it.
 ```html
@@ -124,22 +110,25 @@ Like any other web framework, Arc has support for HTML templates, and uses jinja
 ```
 Once you've done that, save and close the file, and go back to the python file you were working in. Add the following code to the file.
 ```py
-from arc import App
+from arc import App, Template
 
 app = App()
 
+template = Template()
+
 @app.route("/")
-def index(req, res):
-    res.body = app.template("index.html", context={"title": "Arc Templates", "heading": "Arc is AMAZING!"})
+def index(request):
+    return Template("index.html", context={"request": request, "title": "Templates", "heading": "Arc is AMAZING"})
 
 if __name__ == "__main__":
     app.run()
 ```
-Once you have that, run your file and head to http://127.0.0.1:5000 to see your web page in action. Once you're there, you should see the text `Arc is AMAZING` on the screen. Now, lets break down what we've done here. We used the `app.template` method of our `App` class to define a template. In this function, you have to provide a template name, and context, which we provided as a dictionary. Jinja2 will then use the corresponding `title` and `heading` values to fill out the variables we put in the HTML page. Keep in mind that you should use `res.body` instead of `res.text` to define a web page. By default, jinja2 searches for templates in the `templates` folder, but you can change that when initializing the `App` class like the following.
+Once you have that, run your file and head to http://127.0.0.1:5000 to see your web page in action. Once you're there, you should see the text `Arc is AMAZING` on the screen. Now, lets break down what we've done here. Instead of importing `TextResponse` like before, we used Arc's `Template` class. The `Template` class behaves just like a response, and requires you to fill out a template name, and the context, which is a dict. You are required to provide `request` to the context as a key. By default, the `Template` class searches for templates in the `templates` directory, but you can change that by doing the following.
 ```py
-from arc import App
+from arc import App, Template
 
-app = App(templates_dir="pages")
+app = App()
+template = Template(directory="pages")
 ```
 If you do the above, arc will then search for templates in the `pages` directory.
 ## Serving static files
@@ -171,87 +160,31 @@ app = App(static_dir="styles")
 Now, the code will serve static files from the `styles` directory.
 
 # Sessions/Cookies
-Arc has support for creating sessions, as well as cookies. Sessions are data that you can store, and which expire once the browser is closed. Copy and paste the below code into your python file.
+Arc has support for creating cookies. Cookies are data that the client browser stores for future use. Below is an example of how you can create cookies.
 ```py
-from arc import App, Session
+from arc import App, TextResponse
 
 app = App()
-session = Session(app)
 
 @app.route("/")
-def setsession(req, res):
-    res.text = "Storing Session"
-    session.make_session("Data", "Arc Is AMAZING", res)
+def setsession(request):
+    response = TextResponse("Creating Cookies")
+    response.set_cookie("data", "arc is AMAZING", max_age=app.to_seconds(10, "hour"))
+    return response
 
-@app.route("/getsession")
-def getsession(req, res):
-    res.text = session["Data"]
+@app.route("/getdata")
+def getdata(request):
+    return TextResponse(request.cookies.get("data"))
 
 if __name__ == "__main__":
     app.run()
 ```
-Lets break this down. As you may have noticed, we imported another class, the `Session` class, which is used for creating and storing sessions. It takes `app` as an argument. The `Session` class behaves sort of like a dictionary, and data is stored in key/value pairs. Now run the code you just copied, and head to http://127.0.0.1:5000. Once you've head there, head to http://127.0.0.1:5000/getsession. Once you've done that, the text `Arc is AMAZING` should show up on screen. Keep in mind that if you head to the `/getsession` route before the `/` route, this code will raise an error, as the session key `Data` has not yet been created. By default, sessions expire when you close the webpage, but you can change that as per the following.
-```py
-from arc import App, Session
-import datetime
-
-app = App()
-session = Session(app, lifetime=datetime.timedelta(minutes=60))
-
-@app.route("/")
-def setsession(req, res):
-    session.make_session("test", "test", res)
-    res.text = "Making Session"
-
-@app.route("/getsession")
-def getsession(req, res):
-    res.text = session["test"]
-```
-Keep in mind that changing session lifetimes is still being worked on, if you encounter any problems, please let me know by opening up an issue. Now lets look at cookies. Cookies can be created using the `App` class's `.set_cookie()` method.
-You can retrieve cookies using both the `.get_cookies()` and `.get_cookie()` methods. Now, copy and paste the example below.
-```py
-from arc import App
-
-app = App()
-
-@app.route("/")
-def setcookie(req, res):
-    app.set_cookie("data", "arc is great, isn't it", res)
-    res.text = "Setting Cookie"
-
-@app.route("/getcookie")
-def getcookie(req, res):
-    # Getting all cookies
-    all_cookies = app.get_cookies(req)
-
-    # Getting a specific cookie
-    cookie = app.get_cookie(req, "data")
-
-    res.text = f"All Cookies: {all_cookies}, Data: {cookie}"
-```
-Alright, the above code is doing three things, setting a cookie with the key `data`, getting all of the stored cookies, and getting just the `data` cookie.
-The `.get_cookies()` function gets all of the cookies stored, and `.get_cookie()` takes a `key` argument and gives the corresponding data. As with sessions, you can provide custom lifetimes to the cookies using the `datetime` module.
-```py
-from arc import App
-
-app = App()
-
-@app.route("/")
-def setcookie(req, res):
-    app.set_cookie("data", "arc is great, isn't it", res,                       lifetime=datetime.timedelta(minutes=10))
-
-    res.text = "Setting Cookie"
-
-@app.route("/getcookie")
-def getcookie(req, res):
-    res.text = app.get_cookie("data")
-```
-Again, setting custom lifetimes is still experimental, and may have some problems, so make sure to open an issue.
+Lets break this down.  Lets break this down. Arc uses Starlettes Request and Response classes, which have support for getting and settings cookies. In our first route, we used the `.set_cookie()` method, and provided a key to access its data, the data, and the `max_age` parameter. The `max_age` paramter signifies how long the cookie will last in seconds. To make this easier for you, the `App` class has a `to_seconds()` method which takes an integer for the amount and a string which can either be `"hour"` or `"minute"`. In our second route, we use the `.cookies.get()` method to grab our stored cookie. Now, head to http://127.0.0.1:5000 to see your app in action. Make sure not to go to the `/getdata` route before the `/` route, as it will raise an error.
 
 # Middleware
-Arc has support for adding custom middleware. If you don't know what it is, middleware is basically a component that you can use to modify the behavior of an incoming request or an outgoing response. By default, Arc has a middleware created that logs requests and responses onto the console. You may have noticed this, as each time you make a request, it's logged in the console, alongside the outgoing response. In order to make custom middlewares, you have to use Arc's `Middleware` class. Copy the following code into your python file.
+Arc has support for adding custom middlewares. If you don't know what it is, middleware is basically a component that you can use to modify the behavior of an incoming request or an outgoing response. By default, Arc has a middleware created that logs requests and responses onto the console. You may have noticed this, as each time you make a request, it's logged in the console, alongside the outgoing response. In order to make custom middlewares, you have to use Arc's `Middleware` class. Copy the following code into your python file.
 ```py
-from arc import App, Middleware
+from arc import App, Middleware, TextResponse
 
 app = App()
 
@@ -265,8 +198,8 @@ class CustomMiddleware(Middleware):
 app.add_middleware(CustomMiddleware)
 
 @app.route("/")
-def index(req, res):
-    res.text = "Middlewares are cool :D"
+def index(request):
+    return TextResponse("Middlewares are cool :D")
 
 if __name__ == "__main__":
     app.run()
@@ -274,20 +207,27 @@ if __name__ == "__main__":
 Lets break this down. As you may have noticed, we imported the `Middleware` class to help us construct our custom middleware. Then we created the `CustomMiddleware`
 class which consists of the `process_request()` and `process_response()` methods. These methods decide what to do in order to handle a response or request, in our case, they are printing to the console each time a request is made or a response is given. Now lets run our code. Head to http://127.0.0.1:5000, and back to your code. Something like below should have appeared.
 ```
-[INFO] Running on http://127.0.0.1:5000
-[INFO] Press CTRL + C to stop
+INFO: Running on http://127.0.0.1:5000
 
+INFO: Press CTRL + C to stop
 Recieved a request
-[REQUEST][GET] http://127.0.0.1:5000/
 
-[RESPONSE] http://127.0.0.1:5000/
+INFO: [REQUEST][GET] http://127.0.0.1:5000/
+
+INFO: [RESPONSE] http://127.0.0.1:5000/
+Sent a response
+Recieved a request
+
+INFO: [REQUEST][GET] http://127.0.0.1:5000/favicon.ico
+
+INFO: [RESPONSE] http://127.0.0.1:5000/favicon.ico
 Sent a response
 ```
 Congratulations, your custom middleware worked. Now, above, we have two middlewares at work here, the default one, and our custom one. In some cases, we may not want the default middleware clogging up the console if we have our own custom one running, because of this, you can disable the default middleware. In order to do this, edit your current code so it looks like the following.
 ```py
 from arc import App, Middleware
 
-app = App(default_middleware=False)
+app = App(logging=False)
 
 class CustomMiddleware(Middleware):
     def process_request(self, req):
@@ -329,15 +269,23 @@ if __name__ == "__main__":
 ```
 The above code is initializing our app, as normal, but its importing a `mycollection` object from `test.py`, which we'll make in a moment, and using the `App` class's `.register_collection` function to add the `mycollection` module to our main app. Now, for `test.py`, copy and paste the following code into it.
 ```py
-from arc import Collection
+from arc import Collection, TextResponse
 
 mycollection = Collection()
 
 @mycollection.route("/")
-def index(req, res):
-    res.text = "Collections are cool!"
+def index(request):
+    return TextResponse("Collections are cool :D")
 ```
 As you can see above, a collection behaves almost exactly like the main app class, and has most of the same methods, and the ability to serve HTML templates and create cookies, so you're not losing anything by using a collection. Alright, lets test this out, run your `__init__.py` file and head to http://127.0.0.1:5000 to see your app in action.
+
+# Responses
+As you may have noticed throughout this documentation, we have been using the `TextResponse` class, which renders text on our web page. Arc has support for many other types of responses. The ones built into Arc are the following.
+
+* TextResponse
+* RedirectResponse
+
+Arc also has support for all of Starlettes web response classes.
 
 # Afterword
 Hey, glad you made it this far, Arc is still under heavy development, and I'm still adding more features and bug fixes. If you find any bugs or problems in your code, feel free to open an issue or email me at aboominister@gmail.com. All help is appreciated. A full API reference is coming soon. Thanks :D

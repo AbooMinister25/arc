@@ -3,7 +3,7 @@ import os
 
 
 class Collection:
-    def __init__(self, templates_dir="templates", static_dir="static", exception_handler=None, host="127.0.0.1", port=5000):
+    def __init__(self, exception_handler=None, host="127.0.0.1", port=5000):
         self.routes = {}
 
         # The host
@@ -11,8 +11,6 @@ class Collection:
 
         # The port
         self.port = port
-
-        self.templates_dir = templates_dir
 
         if exception_handler is None:
             self.exception_handler = DefaultExceptionHandler(self)
