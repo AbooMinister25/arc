@@ -11,7 +11,6 @@ class Middleware:
         response = self.app.handle_request(request)
         
         await response(scope, receive, send)
-        return response(scope, receive, send)
 
     def add(self, middleware_cls):
         self.app = middleware_cls(self.app)

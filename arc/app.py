@@ -1,7 +1,9 @@
 from arc.middleware import Middleware
 from arc.defaults import DefaultMiddleware, DefaultExceptionHandler
+from arc.staticfiles import StaticFile
 from jinja2.loaders import FileSystemLoader
 from starlette.requests import Request
+from starlette.staticfiles import StaticFiles
 import uvicorn
 from parse import parse
 from jinja2 import Environment, FileSystemLoader
@@ -96,12 +98,23 @@ class App:
 
         self.whitenoise = WhiteNoise(self.wsgi_app, root=static_dir)
 
+        self.static_app = StaticFiles(directory=static_dir)
+
         self.middleware = Middleware(self)
 
         if default_middleware:
             self.add_middleware(DefaultMiddleware)
+        
+        self.static_test = StaticFile(static_dir)
 
         self.collections = []
+
+        # def serve_static(self, scope, recieve, send, path):
+        #     ...
+
+        # self.add_route("/static", self.static_app)
+        
+        self.add_route("/static/{filename}", self.static_test)
 
     async def wsgi_app(self, scope, recieve, send):
         request = Request(scope, recieve=recieve)
@@ -111,12 +124,6 @@ class App:
         await response(scope, recieve, send)
 
     async def __call__(self, scope, recieve, send):
-        path_info = scope["path"]
-
-        # if path_info.startswith("/static") or path_info.startswith("static"):
-        #     scope["PATH_INFO"] = path_info[len("/static"):]
-        #     return self.whitenoise(environ, start_response)
-
         await self.middleware(scope, recieve, send)
 
     def handle_request(self, request):
@@ -132,7 +139,7 @@ class App:
 
                 response = handler(request, **kwargs)
             else:
-                self.default_response()
+                return self.default_response()
 
         except Exception as e:
             error = traceback.format_exc()
@@ -141,7 +148,7 @@ class App:
         return response
 
     def default_response(self):
-        self.exception_handler.handle_404()
+        return self.exception_handler.handle_404()
 
     def find_handler(self, request_path):
         for path, handler in self.routes.items():
