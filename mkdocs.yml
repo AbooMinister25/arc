@@ -1,0 +1,22 @@
+site_name: Arc Documentation
+
+theme:
+  name: material
+
+repo_name: AbooMinister25/arc
+repo_url: https://github.com/AbooMinister25/arc
+
+nav:
+  - Introduction: 'index.md'
+  - Routes: 'routes.md'
+  - Templates: 'templates.md'
+  - Static: 'static.md'
+  - Cookies: 'cookies.md'
+  - Middleware: 'middleware.md'
+  - Collections: 'collections.md'
+  - Responses: 'responses.md'
+  - Async: 'async.md'
+  - Deployment: 'deployment.md'
+
+markdown_extensions:
+  - toc
