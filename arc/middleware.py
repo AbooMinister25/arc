@@ -9,7 +9,7 @@ class Middleware:
     async def __call__(self, scope, receive, send):
         request = Request(scope=scope, receive=receive)
 
-        response = self.app.handle_request(request)
+        response = await self.app.handle_request(request)
 
         await response(scope, receive, send)
 

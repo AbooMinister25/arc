@@ -5,6 +5,7 @@ from arc.logger import Logger
 import uvicorn
 from parse import parse
 import traceback
+import inspect
 
 
 class App:
@@ -12,13 +13,13 @@ class App:
     The base App object. This object creates a WSGI application, and is used as the base object for creating routes, views, 
     templating, and more. Basic usage is as the following:: 
 
-    from arc import App
+    from arc import App, TextResponse
 
     app = App()
 
     @app.route("/")
-    def index(req, res):
-        res.text = 'Hello, World'
+    def index(request):
+        return TextResponse("Hello, World")
 
     if __name__ == "__main__":
         app.run()
@@ -69,7 +70,7 @@ class App:
         app = App(logger=MyCustomLogger())
     """
 
-    def __init__(self, static_dir: str = "static", exception_handler=None, host: str = "127.0.0.1", port=5000, logging=True, logger=Logger()):
+    def __init__(self, static_dir: str = "static", exception_handler=None, host: str = "127.0.0.1", port: int = 5000, logging: bool = True, logger=Logger()):
         self.routes = {}
 
         # The host
@@ -99,18 +100,17 @@ class App:
     async def __call__(self, scope, receive, send):
         await self.middleware(scope, receive, send)
 
-    def handle_request(self, request):
+    async def handle_request(self, request):
         handler, kwargs = self.find_handler(request_path=request.url.path)
 
         try:
             if handler is not None:
-                # if inspect.isclass(handler):
-                #     handler = getattr(handler(), request.method.lower(), None)
-                #     if handler is None:
-                #         raise AttributeError(
-                #             "Method not allowed", request.method)
 
-                response = handler(request, **kwargs)
+                if inspect.iscoroutinefunction(handler):
+                    response = await handler(request, **kwargs)
+
+                else:
+                    response = handler(request, **kwargs)
             else:
                 return self.default_response(request)
 
@@ -131,7 +131,7 @@ class App:
 
         return None, None
 
-    def route(self, path):
+    def route(self, path: str):
 
         assert path not in self.routes, f"Route {path} already exists"
 
@@ -168,9 +168,14 @@ class App:
         self.routes.update(collection.routes)
         self.collections.append(collection)
 
-    def run(self):
+    def run(self, host: str = None, port: int = None, uvicorn_log_level="critical", reload=False, workers=1, access_log=True) -> None:
+        if host is not None:
+            self.host = host
+        if port is not None:
+            self.port = port
+
         self.logger.log(f"Running on http://{self.host}:{self.port}", "info")
         self.logger.log(f"Press CTRL + C to stop", "info")
-        uvicorn.run(self, host="127.0.0.1", port=5000,
-                    log_level="critical")
+        uvicorn.run(self, host=self.host, port=self.port,
+                    log_level=uvicorn_log_level, reload=reload, workers=workers, access_log=access_log)
         self.logger.log("Exiting Application", "critical")

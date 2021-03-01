@@ -11,10 +11,12 @@
 - [Routes](#routes)
 - [Templates](#templates)
   - [Serving static files](#serving-static-files)
-- [Sessions/Cookies](#sessionscookies)
+- [Cookies](#cookies)
 - [Middleware](#middleware)
 - [Collections](#collections)
 - [Responses](#responses)
+- [Async](#async)
+- [Deployment](#deployment)
 - [Afterword](#afterword)
 
 
@@ -159,7 +161,7 @@ app = App(static_dir="styles")
 ```
 Now, the code will serve static files from the `styles` directory.
 
-# Sessions/Cookies
+# Cookies
 Arc has support for creating cookies. Cookies are data that the client browser stores for future use. Below is an example of how you can create cookies.
 ```py
 from arc import App, TextResponse
@@ -284,8 +286,31 @@ As you may have noticed throughout this documentation, we have been using the `T
 
 * TextResponse
 * RedirectResponse
+* Response
 
 Arc also has support for all of Starlettes web response classes.
+
+# Async
+Arc has support for creating asynchronous routes and handlers, which can lead to better performance. Copy and paste the below code into your python file.
+```py
+from arc import App, TextResponse
+
+app = App()
+
+@app.route("/")
+async def index(request):
+    return TextResponse("Hello Async!")
+
+if __name__ == "__main__":
+    app.run()
+```
+
+# Deployment
+Once you're done making your website, you'll probably want to deploy it. I don't suggest running the default uvicorn web server for deployment, instead you can use `guvicorn` with `UvicornWorker`. Keep in mind that `guvicorn` is only available on linux. You can use the following to deploy it.
+```
+gunicorn -k uvicorn.workers.UvicornWorker main:app
+```
+You can look at the uvicorn and gunicorn documentations on more information on this.
 
 # Afterword
 Hey, glad you made it this far, Arc is still under heavy development, and I'm still adding more features and bug fixes. If you find any bugs or problems in your code, feel free to open an issue or email me at aboominister@gmail.com. All help is appreciated. A full API reference is coming soon. Thanks :D
