@@ -5,10 +5,10 @@ import os
 
 
 class LoggingMiddleware(Middleware):
-    def process_request(self, req):
+    async def process_request(self, req):
         self.app.logger.log(f"[REQUEST][{req.method}] {req.url}", "info")
 
-    def process_response(self, req, res):
+    async def process_response(self, req, res):
         self.app.logger.log(f"[RESPONSE] {req.url}", "info")
 
 

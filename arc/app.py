@@ -96,8 +96,12 @@ class App:
         self.add_route("/static/{filename}", self.static_app)
 
         self.logger = logger
+        
+        self.config = {}
 
     async def __call__(self, scope, receive, send):
+        self.scope = scope
+
         await self.middleware(scope, receive, send)
 
     async def handle_request(self, request):
@@ -146,8 +150,15 @@ class App:
 
         self.routes[path] = handler
 
-    def add_middleware(self, middleware_cls):
-        self.middleware.add(middleware_cls)
+    def init_app(self):
+
+        def wrapper(handler):
+            self.init_app_functions.append(handler)
+
+        return wrapper
+
+    def add_middleware(self, middleware_cls, *args):
+        self.middleware.add(middleware_cls, *args)
 
     def to_seconds(self, time: int, type) -> int:
         if type.lower() not in ["hour", "minute"]:

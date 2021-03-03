@@ -1,10 +1,10 @@
 from starlette.requests import Request
+import inspect
 
 
 class Middleware:
     def __init__(self, app):
         self.app = app
-        self.test = "YAY"
 
     async def __call__(self, scope, receive, send):
         request = Request(scope=scope, receive=receive)
@@ -13,19 +13,28 @@ class Middleware:
 
         await response(scope, receive, send)
 
-    def add(self, middleware_cls):
-        self.app = middleware_cls(self.app)
+    def add(self, middleware_cls, *args):
+        if args == []:
+            args = None
+        self.app = middleware_cls(self.app, *args)
 
-    def process_request(self, req):
+    async def process_request(self, req):
         pass
 
-    def process_response(self, req, res):
+    async def process_response(self, req, res):
         pass
 
-    def handle_request(self, request):
-        self.process_request(request)
+    async def handle_request(self, request):
+        if inspect.iscoroutinefunction(self.process_request):
+            await self.process_request(request)
+        else:
+            self.process_response(request)
 
-        response = self.app.handle_request(request)
-        self.process_response(request, response)
+        response = await self.app.handle_request(request)
+        
+        if inspect.iscoroutinefunction(self.process_response):
+            await self.process_response(request, response)
+        else:
+            self.process_response(request, response)
 
         return response

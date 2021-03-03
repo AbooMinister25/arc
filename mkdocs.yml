@@ -17,6 +17,7 @@ nav:
   - Responses: 'responses.md'
   - Async: 'async.md'
   - Deployment: 'deployment.md'
+  - Sessions: 'sessions.md'
 
 markdown_extensions:
   - toc
