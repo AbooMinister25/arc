@@ -14,7 +14,7 @@
     
     
       
-        <title>Async - Arc Documentation</title>
+        <title>Sessions - Arc Documentation</title>
       
     
     
@@ -58,7 +58,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#async" class="md-skip">
+        <a href="#sessions" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +90,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Async
+              Sessions
             
           </span>
         </div>
@@ -317,20 +317,11 @@
 
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../async/" class="md-nav__link">
         Async
       </a>
-      
     </li>
   
 
@@ -356,11 +347,20 @@
 
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../sessions/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Sessions
       </a>
+      
     </li>
   
 
@@ -393,25 +393,43 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/AbooMinister25/arc/edit/master/docs/async.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/AbooMinister25/arc/edit/master/docs/sessions.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="async">Async</h1>
-<p>Arc has support for creating asynchronous routes and handlers, which can lead to better performance. Copy and paste the below code into your python file.</p>
-<pre><code class="language-py">from arc import App, TextResponse
+                <h1 id="sessions">Sessions</h1>
+<p>Arc has support for creating web sessions. If you don't know what they are, sessions are basically temporary pieces of data that the server stores for future reference. Sessions are often confused with cookies, but cookies are stored on the client end, and sessions are stored on the server, making them more secure. Arc has a very straightforward way to implement sessions into your application. Just copy and paste the following code into your python file.</p>
+<pre><code class="language-py">from arc import App, TextResponse, SessionHandler
 
 app = App()
 
+session = SessionHandler(app)
+
 @app.route(&quot;/&quot;)
 async def index(request):
-    return TextResponse(&quot;Hello Async!&quot;)
+    response = TextResponse(&quot;Sessions are cool :D&quot;)
+    session.init_session(request, response)
+    session()[&quot;data&quot;] = &quot;Arc is AMAZING&quot;
+    return response
+
+
+@app.route(&quot;/getsession&quot;)
+async def getsession(request):
+    return TextResponse(f&quot;Session Data: {session()[&quot;data&quot;]}&quot;)
 
 if __name__ == &quot;__main__&quot;:
     app.run()
 </code></pre>
-<p>Now, head to <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a> to see your app in action.</p>
+<p>Alright, so you may have noticed that we have imported a new class, the <code>SessionHandler</code> class, which is used to create and use sessions. We called it using the <code>init_session</code> method, and interact with it similarly to a dict like object. By default, sessions last one hour, and expire after that, you do the following.</p>
+<pre><code class="language-py">session = SessionHandler(app, lifetime=app.to_seconds(48, &quot;hour&quot;))
+</code></pre>
+<p>You can also optionally pass a secret key, like the following.</p>
+<pre><code class="language-py">import secrets
+...
+session = SessionHandler(app, secret_key=secrets.tokens.urlsafe(20))
+</code></pre>
+<p>Your secret key is added to the unique session token that is generated each time a new session is opened. At the moment, sesions are still being developed, so feel free to open an issue on any problems or risks with the security of the sessions, or make a pull request.</p>
                 
               
               
@@ -429,7 +447,7 @@ if __name__ == &quot;__main__&quot;:
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
-        <a href="../responses/" class="md-footer__link md-footer__link--prev" rel="prev">
+        <a href="../deployment/" class="md-footer__link md-footer__link--prev" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -438,25 +456,11 @@ if __name__ == &quot;__main__&quot;:
               <span class="md-footer__direction">
                 Previous
               </span>
-              Responses
-            </div>
-          </div>
-        </a>
-      
-      
-        <a href="../deployment/" class="md-footer__link md-footer__link--next" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
               Deployment
             </div>
           </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-          </div>
         </a>
+      
       
     </nav>
   
