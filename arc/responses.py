@@ -1,7 +1,7 @@
 from starlette.responses import Response
 from urllib.parse import quote_plus
 import typing
-import json
+import orjson
 
 
 class TextResponse(Response):
@@ -21,10 +21,6 @@ class JSON(Response):
     media_type = "application/json"
 
     def render(self, content: typing.Any) -> bytes:
-        return json.dumps(
-            content,
-            ensure_ascii=False,
-            allow_nan=False,
-            indent=None,
-            separators=(",", ":"),
-        ).encode("utf-8")
+        return orjson.dumps(
+            content
+        )

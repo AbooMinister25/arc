@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="arcframework",  # Replace with your own username
-    version="2.1.7",
+    version="2.2.8",
     author="Rayyan Cyclegar",
     author_email="aboominister@gmail.com",
     description="A Python micro web framework for creating dynamic websites.",
@@ -20,7 +20,7 @@ setuptools.setup(
     ],
     python_requires='>=3.8',
     install_requires=[
-        "uvicorn", "parse", "jinja2", "starlette"
+        "uvicorn", "parse", "jinja2", "starlette", "orjson"
     ],
     include_package_data=True,
     package_data={

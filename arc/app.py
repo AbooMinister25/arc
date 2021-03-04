@@ -96,7 +96,7 @@ class App:
         self.add_route("/static/{filename}", self.static_app)
 
         self.logger = logger
-        
+
         self.config = {}
 
     async def __call__(self, scope, receive, send):
@@ -105,21 +105,31 @@ class App:
         await self.middleware(scope, receive, send)
 
     async def handle_request(self, request):
-        handler, kwargs = self.find_handler(request_path=request.url.path)
-
         try:
-            if handler is not None:
+            handler, kwargs, methods = self.find_handler(
+                request_path=request.url.path)
 
-                if inspect.iscoroutinefunction(handler):
-                    response = await handler(request, **kwargs)
+            assert request.method.lower() in [method.lower(
+            ) for method in methods], f"Method {request.method.lower()} not allowed"
 
+            try:
+                if handler is not None:
+
+                    if inspect.iscoroutinefunction(handler):
+                        response = await handler(request, **kwargs)
+
+                    else:
+                        response = handler(request, **kwargs)
                 else:
-                    response = handler(request, **kwargs)
-            else:
-                return self.default_response(request)
+                    return self.default_response(request)
 
-        except Exception as e:
+            except Exception as e:
+                error = traceback.format_exc()
+                print(error)
+                response = self.exception_handler.handle_error(request, error)
+        except:
             error = traceback.format_exc()
+            print(error)
             response = self.exception_handler.handle_error(request, error)
 
         return response
@@ -128,27 +138,33 @@ class App:
         return self.exception_handler.handle_404(request)
 
     def find_handler(self, request_path):
-        for path, handler in self.routes.items():
+        for path, items in self.routes.items():
+            handler = items["handler"]
+            methods = items["methods"]
             parse_result = parse(path, request_path)
             if parse_result is not None:
-                return handler, parse_result.named
+                return handler, parse_result.named, methods
 
-        return None, None
+        return None, None, methods
 
-    def route(self, path: str):
+    def route(self, path: str, methods=["GET", "POST", "HEAD", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]):
 
         assert path not in self.routes, f"Route {path} already exists"
 
+        for method in methods:
+            assert method in ["GET", "POST", "HEAD", "PUT", "DELETE", "CONNECT",
+                              "OPTIONS", "TRACE", "PATCH"], f"Method {method} doesn't exist"
+
         def wrapper(handler):
-            self.add_route(path, handler)
+            self.add_route(path, handler, methods)
             return handler
 
         return wrapper
 
-    def add_route(self, path, handler):
+    def add_route(self, path, handler, methods=["GET", "POST", "HEAD", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]):
         assert path not in self.routes, f"Route {path} already exists"
 
-        self.routes[path] = handler
+        self.routes[path] = {"handler": handler, "methods": methods}
 
     def init_app(self):
 
