@@ -18,8 +18,7 @@ nav:
   - Async: 'async.md'
   - Deployment: 'deployment.md'
   - Sessions: 'sessions.md'
-  - 'Tutorials':
-    - 'Simple API': "simpleapipart1.md"
+
 
 markdown_extensions:
   - toc

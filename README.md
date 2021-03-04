@@ -36,4 +36,4 @@ INFO: Press CTRL + C to stop
 Now go to http://127.0.0.1:5000/home, and you should see `Hello World` being displayed on the screen.
 
 ## Issues/Bugs
-Arc is still under heavy development abd has loads of bugs and errors that I'm constantly working on resolving. You can check out the documentation at DOCS.md. Feel free to open an issue or email me at aboominister@gmail.com, all help would be appreciated.
+Arc is still under heavy development abd has loads of bugs and errors that I'm constantly working on resolving. You can check out the documentation at https://aboominister25.github.io/arc/. Feel free to open an issue or email me at aboominister@gmail.com, all help would be appreciated.

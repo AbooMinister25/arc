@@ -108,9 +108,12 @@ class App:
         try:
             handler, kwargs, methods = self.find_handler(
                 request_path=request.url.path)
-
-            assert request.method.lower() in [method.lower(
-            ) for method in methods], f"Method {request.method.lower()} not allowed"
+            
+            if handler is None:
+                pass
+            else:
+                assert request.method.lower() in [method.lower(
+                ) for method in methods], f"Method {request.method.lower()} not allowed"
 
             try:
                 if handler is not None:
@@ -196,6 +199,9 @@ class App:
         self.collections.append(collection)
 
     def run(self, host: str = None, port: int = None, uvicorn_log_level="critical", reload=False, workers=1, access_log=True) -> None:
+        if "/" not in self.routes:
+            self.add_route("/", self.default_response)
+            
         if host is not None:
             self.host = host
         if port is not None:
