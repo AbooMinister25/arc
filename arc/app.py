@@ -1,7 +1,9 @@
+from re import L
 from arc.middleware import Middleware
 from arc.defaults import LoggingMiddleware, DefaultExceptionHandler
 from arc.staticfiles import StaticFile
 from arc.logger import Logger
+from starlette.websockets import WebSocket
 import uvicorn
 from parse import parse
 import traceback
@@ -108,8 +110,8 @@ class App:
         try:
             handler, kwargs, methods = self.find_handler(
                 request_path=request.url.path)
-            
-            if handler is None:
+
+            if request is WebSocket:
                 pass
             else:
                 assert request.method.lower() in [method.lower(
@@ -143,7 +145,10 @@ class App:
     def find_handler(self, request_path):
         for path, items in self.routes.items():
             handler = items["handler"]
-            methods = items["methods"]
+            try:
+                methods = items["methods"]
+            except:
+                methods = None
             parse_result = parse(path, request_path)
             if parse_result is not None:
                 return handler, parse_result.named, methods
@@ -167,14 +172,22 @@ class App:
     def add_route(self, path, handler, methods=["GET", "POST", "HEAD", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]):
         assert path not in self.routes, f"Route {path} already exists"
 
-        self.routes[path] = {"handler": handler, "methods": methods}
+        self.routes[path] = {"handler": handler,
+                             "methods": methods}
 
-    def init_app(self):
+    def websocket(self, path: str):
+        assert path not in self.routes, f"Route {path} already exists"
 
         def wrapper(handler):
-            self.init_app_functions.append(handler)
+            self.add_websocket(path, handler)
+            return handler
 
         return wrapper
+
+    def add_websocket(self, path, handler):
+        assert path not in self.routes, f"Route {path} already exists"
+
+        self.routes[path] = {"handler": handler}
 
     def add_middleware(self, middleware_cls, *args):
         self.middleware.add(middleware_cls, *args)
@@ -199,9 +212,6 @@ class App:
         self.collections.append(collection)
 
     def run(self, host: str = None, port: int = None, uvicorn_log_level="critical", reload=False, workers=1, access_log=True) -> None:
-        if "/" not in self.routes:
-            self.add_route("/", self.default_response)
-            
         if host is not None:
             self.host = host
         if port is not None:

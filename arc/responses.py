@@ -24,3 +24,7 @@ class JSON(Response):
         return orjson.dumps(
             content
         )
+
+
+class HTML(Response):
+    media_type = "text/html"

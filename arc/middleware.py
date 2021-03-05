@@ -1,5 +1,7 @@
 from starlette.requests import Request
+from starlette.websockets import WebSocket
 import inspect
+import traceback
 
 
 class Middleware:
@@ -7,11 +9,22 @@ class Middleware:
         self.app = app
 
     async def __call__(self, scope, receive, send):
-        request = Request(scope=scope, receive=receive)
+        try:
+            if scope["type"] == "http":
+                request = Request(scope=scope, receive=receive)
 
-        response = await self.app.handle_request(request)
+                response = await self.app.handle_request(request)
 
-        await response(scope, receive, send)
+            elif scope["type"] == "websocket":
+                websocket = WebSocket(scope=scope, receive=receive, send=send)
+
+                response = await self.app.handle_request(websocket)
+
+            await response(scope, receive, send)
+        except:
+            error = traceback.format_exc()
+            print(error)
+            response = self.exception_handler.handle_error(request, error)
 
     def add(self, middleware_cls, *args):
         if args == []:
@@ -31,7 +44,7 @@ class Middleware:
             self.process_response(request)
 
         response = await self.app.handle_request(request)
-        
+
         if inspect.iscoroutinefunction(self.process_response):
             await self.process_response(request, response)
         else:

@@ -436,6 +436,19 @@ if __name__ == &quot;__main__&quot;:
 <pre><code class="language-py">def handler_name(request):
     # handler code
 </code></pre>
+<p>When making routes, you can also specify what request methods are allowed for the route, such as the following.</p>
+<pre><code class="language-py">from arc import App, TextResponse
+
+app = App()
+
+@app.route(&quot;/&quot;, methods=[&quot;GET&quot;])
+def home(request):
+    return TextResponse(&quot;Only get requests are allowed on this route&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    app.run()
+</code></pre>
+<p>In the above, if you try something other than a GET request, you'll get an error.</p>
 <p>You have a function name, which you can define as anything you want, one parameter, which represent the <code>request</code>, and the contents of the handler, which decide what to do. You can use different response types to add content to the web page.</p>
                 
               

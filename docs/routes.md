@@ -42,4 +42,22 @@ The above does the exact same thing as the first example with decorators, but in
 def handler_name(request):
     # handler code
 ```
+
+When making routes, you can also specify what request methods are allowed for the route, such as the following.
+
+```py
+from arc import App, TextResponse
+
+app = App()
+
+@app.route("/", methods=["GET"])
+def home(request):
+    return TextResponse("Only get requests are allowed on this route")
+
+if __name__ == "__main__":
+    app.run()
+```
+
+In the above, if you try something other than a GET request, you'll get an error.
+
 You have a function name, which you can define as anything you want, one parameter, which represent the `request`, and the contents of the handler, which decide what to do. You can use different response types to add content to the web page.
