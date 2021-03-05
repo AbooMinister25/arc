@@ -18,6 +18,7 @@ nav:
   - Async: 'async.md'
   - Deployment: 'deployment.md'
   - Sessions: 'sessions.md'
+  - Websockets: 'websockets.md'
 
 
 markdown_extensions:

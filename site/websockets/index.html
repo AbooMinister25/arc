@@ -14,7 +14,7 @@
     
     
       
-        <title>Sessions - Arc Documentation</title>
+        <title>Websockets - Arc Documentation</title>
       
     
     
@@ -58,7 +58,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sessions" class="md-skip">
+        <a href="#websockets" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +90,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Sessions
+              Websockets
             
           </span>
         </div>
@@ -347,6 +347,21 @@
 
   
   
+  
+    <li class="md-nav__item">
+      <a href="../sessions/" class="md-nav__link">
+        Sessions
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
     
   
   
@@ -358,24 +373,9 @@
       
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Sessions
-      </a>
-      
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../websockets/" class="md-nav__link">
         Websockets
       </a>
+      
     </li>
   
 
@@ -408,43 +408,119 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/AbooMinister25/arc/edit/master/docs/sessions.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/AbooMinister25/arc/edit/master/docs/websockets.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="sessions">Sessions</h1>
-<p>Arc has support for creating web sessions. If you don't know what they are, sessions are basically temporary pieces of data that the server stores for future reference. Sessions are often confused with cookies, but cookies are stored on the client end, and sessions are stored on the server, making them more secure. Arc has a very straightforward way to implement sessions into your application. Just copy and paste the following code into your python file.</p>
-<pre><code class="language-py">from arc import App, TextResponse, SessionHandler
+                <h1 id="websockets">Websockets</h1>
+<p>Like any good framework, Arc has full support for creating and using websockets. If you don't know what a websocket is, its basically a way for your frontend to communicate with your backend. So if you have javascript frontend code, you can use websockets to communicate your python backend with your javascript frontend. This can be extremely useful, and Arc makes websockets easy and very straightforward to use. Arc's websockets integration uses Starlettes <code>WebSocket</code> class. Below is a basic example using websockets in Arc.</p>
+<pre><code class="language-py">from arc import App, HTML
 
 app = App()
 
-session = SessionHandler(app)
-
 @app.route(&quot;/&quot;)
 async def index(request):
-    response = TextResponse(&quot;Sessions are cool :D&quot;)
-    session.init_session(request, response)
-    session()[&quot;data&quot;] = &quot;Arc is AMAZING&quot;
-    return response
+    return HTML(
+&quot;&quot;&quot;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt; Websockets :D &lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt; Type in a message below &lt;/h1&gt;
+        &lt;form action=&quot;&quot; onsubmit=&quot;displayMessage(event)&quot;&gt;
+            &lt;input type=&quot;text&quot; id=&quot;messageText&quot; autocomplete=&quot;off&quot; /&gt;
+            &lt;button&gt;Display&lt;/button&gt;
+        &lt;/form&gt;
+        &lt;ul id=&quot;messages&quot;&gt;&lt;/ul&gt;
 
+        &lt;script&gt;
+            var ws = new WebSocket(&quot;ws://localhost:5000/ws&quot;);
+            ws.onmessage = function(event) {
+                var messages = document.getElementById('messages')
+                var message = document.createElement('li')
+                var content = document.createTextNode(event.data)
+                message.appendChild(content)
+                messages.appendChild(message)
+            };
+            function displayMessage(event) {
+                var input = document.getElementById(&quot;messageText&quot;)
+                ws.send(input.value)
+                input.value = ''
+                event.preventDefault()
+            }
+        &lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+&quot;&quot;&quot;
+    )
 
-@app.route(&quot;/getsession&quot;)
-async def getsession(request):
-    return TextResponse(f&quot;Session Data: {session()[&quot;data&quot;]}&quot;)
+@app.websocket(&quot;/ws&quot;)
+async def test_websocket(websocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f&quot;You entered: {data}&quot;)
 
 if __name__ == &quot;__main__&quot;:
     app.run()
 </code></pre>
-<p>Alright, so you may have noticed that we have imported a new class, the <code>SessionHandler</code> class, which is used to create and use sessions. We called it using the <code>init_session</code> method, and interact with it similarly to a dict like object. By default, sessions last one hour, and expire after that, you do the following.</p>
-<pre><code class="language-py">session = SessionHandler(app, lifetime=app.to_seconds(48, &quot;hour&quot;))
+<p>Alright, thats a lot to take in, so lets break it down. So, as you may have noticed, alongside our <code>App</code> class, we imported the <code>HTML</code> class, which is used for rendering responses in the form of html. We then rendered an HTML page that has a text box for you to enter text, and a submit button. We also have some javascript code that connects to our websocket and provides functions on what to do when it recieves a message, and when the text box form is submitted. We then used a new type of function from <code>Arc</code>, the <code>app.websocket</code> method, which is used to create websockets, and requires a default <code>websocket</code> argument. Keep in mind that websocket handlers always have to be asynchronous. So what our websocket handler is doing is waiting for a message, and sending back that message to the frontend for the js to load into the html page. Now, lets run our app and head to <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a>. Once you're there, type in the text box that should have appeared and click the <code>Display</code> button, and if everything went well, the words you just typed into the text box should appear onto the screen. Now, you may not want to have your HTML inside your python file, so lets clean that up and render it using a jinja2 template.</p>
+<pre><code class="language-py">from arc import App, Template
+
+app = App()
+template = Template()
+
+@app.route(&quot;/&quot;)
+async def index(request):
+    return template(&quot;index.html&quot;, context={&quot;request&quot;: request})
+
+@app.websocket(&quot;/ws&quot;)
+async def test_websocket(websocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f&quot;You entered: {data}&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    app.run()`
 </code></pre>
-<p>You can also optionally pass a secret key, like the following.</p>
-<pre><code class="language-py">import secrets
-...
-session = SessionHandler(app, secret_key=secrets.tokens.urlsafe(20))
+<p>create a directory called <code>templates</code> and put an <code>index.html</code> file with the following contents inside of it.</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt; Websockets :D &lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt; Type in a message below &lt;/h1&gt;
+        &lt;form action=&quot;&quot; onsubmit=&quot;displayMessage(event)&quot;&gt;
+            &lt;input type=&quot;text&quot; id=&quot;messageText&quot; autocomplete=&quot;off&quot; /&gt;
+            &lt;button&gt;Display&lt;/button&gt;
+        &lt;/form&gt;
+        &lt;ul id=&quot;messages&quot;&gt;&lt;/ul&gt;
+
+        &lt;script&gt;
+            var ws = new WebSocket(&quot;ws://localhost:5000/ws&quot;);
+            ws.onmessage = function(event) {
+                var messages = document.getElementById('messages')
+                var message = document.createElement('li')
+                var content = document.createTextNode(event.data)
+                message.appendChild(content)
+                messages.appendChild(message)
+            };
+            function displayMessage(event) {
+                var input = document.getElementById(&quot;messageText&quot;)
+                ws.send(input.value)
+                input.value = ''
+                event.preventDefault()
+            }
+        &lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<p>Your secret key is added to the unique session token that is generated each time a new session is opened. At the moment, sesions are still being developed, so feel free to open an issue on any problems or risks with the security of the sessions, or make a pull request.</p>
+<p>Once you've done that, run your app, head back to <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a> and watch your app in action. As I mentioned earlier, Arc uses Starlettes <code>WebSocket</code> class to handle websockets, so check out Starlettes documentation on their <code>WebSocket</code> class for more information on what websockets can do <a href="https://www.starlette.io/websockets/">https://www.starlette.io/websockets/</a>. You can check out <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API</a> on more information for the frontend side in the javascript.</p>
                 
               
               
@@ -462,7 +538,7 @@ session = SessionHandler(app, secret_key=secrets.tokens.urlsafe(20))
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
-        <a href="../deployment/" class="md-footer__link md-footer__link--prev" rel="prev">
+        <a href="../sessions/" class="md-footer__link md-footer__link--prev" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -471,25 +547,11 @@ session = SessionHandler(app, secret_key=secrets.tokens.urlsafe(20))
               <span class="md-footer__direction">
                 Previous
               </span>
-              Deployment
+              Sessions
             </div>
           </div>
         </a>
       
-      
-        <a href="../websockets/" class="md-footer__link md-footer__link--next" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Websockets
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-          </div>
-        </a>
       
     </nav>
   
