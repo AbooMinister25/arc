@@ -9,16 +9,25 @@ class Middleware:
         self.app = app
 
     async def __call__(self, scope, receive, send):
+        print(scope["type"])
         try:
             if scope["type"] == "http":
                 request = Request(scope=scope, receive=receive)
 
-                response = await self.app.handle_request(request)
+                response = await self.app.handle_request(request, "http")
+                
 
             elif scope["type"] == "websocket":
                 websocket = WebSocket(scope=scope, receive=receive, send=send)
 
-                response = await self.app.handle_request(websocket)
+                await self.app.handle_request(websocket, "websocket")
+                
+                await websocket.close()
+                
+                return
+            
+            elif scope["type"] == "lifespan":
+                return
 
             await response(scope, receive, send)
         except:
@@ -37,13 +46,13 @@ class Middleware:
     async def process_response(self, req, res):
         pass
 
-    async def handle_request(self, request):
+    async def handle_request(self, request, type):
         if inspect.iscoroutinefunction(self.process_request):
             await self.process_request(request)
         else:
             self.process_response(request)
 
-        response = await self.app.handle_request(request)
+        response = await self.app.handle_request(request, type)
 
         if inspect.iscoroutinefunction(self.process_response):
             await self.process_response(request, response)

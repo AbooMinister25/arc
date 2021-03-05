@@ -106,14 +106,25 @@ class App:
 
         await self.middleware(scope, receive, send)
 
-    async def handle_request(self, request):
+    async def handle_request(self, request, type):
         try:
             handler, kwargs, methods = self.find_handler(
                 request_path=request.url.path)
 
-            if request is WebSocket:
-                pass
-            else:
+            if type == "websocket":
+                if handler is not None:
+                    if inspect.iscoroutinefunction(handler):
+                        await handler(request, **kwargs)
+
+                    else:
+                        handler(request, **kwargs)
+
+                else:
+                    return self.default_response
+
+                return
+            
+            elif type == "http":
                 assert request.method.lower() in [method.lower(
                 ) for method in methods], f"Method {request.method.lower()} not allowed"
 

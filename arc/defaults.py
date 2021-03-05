@@ -6,7 +6,10 @@ import os
 
 class LoggingMiddleware(Middleware):
     async def process_request(self, req):
-        self.app.logger.log(f"[REQUEST][{req.method}] {req.url}", "info")
+        try:
+            self.app.logger.log(f"[REQUEST][{req.method}] {req.url}", "info")
+        except AttributeError:
+            self.app.logger.log(f"[WEBSOCKET][{req.url}]", "info")
 
     async def process_response(self, req, res):
         self.app.logger.log(f"[RESPONSE] {req.url}", "info")
