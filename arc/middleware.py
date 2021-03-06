@@ -9,7 +9,6 @@ class Middleware:
         self.app = app
 
     async def __call__(self, scope, receive, send):
-        print(scope["type"])
         try:
             if scope["type"] == "http":
                 request = Request(scope=scope, receive=receive)

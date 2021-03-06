@@ -1,35 +1,46 @@
-from arc.defaults import DefaultExceptionHandler
-import os
-
-
 class Collection:
-    def __init__(self, exception_handler=None, host="127.0.0.1", port=5000):
+    def __init__(self):
         self.routes = {}
 
-        # The host
-        self.host = host
-
-        # The port
-        self.port = port
-
-        if exception_handler is None:
-            self.exception_handler = DefaultExceptionHandler(self)
-        else:
-            self.exception_handler = exception_handler()
-
-
-    def route(self, path):
+    def route(self, path: str, methods=["GET", "POST", "HEAD", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]):
 
         assert path not in self.routes, f"Route {path} already exists"
 
+        for method in methods:
+            assert method in ["GET", "POST", "HEAD", "PUT", "DELETE", "CONNECT",
+                              "OPTIONS", "TRACE", "PATCH"], f"Method {method} doesn't exist"
+
         def wrapper(handler):
-            self.add_route(path, handler)
+            self.add_route(path, handler, methods)
             return handler
 
         return wrapper
 
-    def add_route(self, path, handler):
+    def add_route(self, path, handler, methods=["GET", "POST", "HEAD", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]):
         assert path not in self.routes, f"Route {path} already exists"
 
-        self.routes[path] = handler
+        self.routes[path] = {"handler": handler,
+                             "methods": methods}
 
+    def websocket(self, path: str):
+        assert path not in self.routes, f"Route {path} already exists"
+
+        def wrapper(handler):
+            self.add_websocket(path, handler)
+            return handler
+
+        return wrapper
+
+    def add_websocket(self, path, handler):
+        assert path not in self.routes, f"Route {path} already exists"
+
+        self.routes[path] = {"handler": handler}
+
+    def to_seconds(self, time: int, type) -> int:
+        if type.lower() not in ["hour", "minute"]:
+            raise ValueError("Invalid type given")
+
+        if type.lower() == "hour":
+            return time * 60
+        elif type.lower() == "minute":
+            return time * 3600

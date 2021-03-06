@@ -1,9 +1,7 @@
-from re import L
 from arc.middleware import Middleware
 from arc.defaults import LoggingMiddleware, DefaultExceptionHandler
 from arc.staticfiles import StaticFile
 from arc.logger import Logger
-from starlette.websockets import WebSocket
 import uvicorn
 from parse import parse
 import traceback

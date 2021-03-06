@@ -1,5 +1,4 @@
 from arc.middleware import Middleware
-from arc.errors import AppException
 from arc.templates import Template
 import os
 
