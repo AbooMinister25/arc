@@ -27,4 +27,4 @@ class DefaultExceptionHandler:
 
     def handle_404(self, request):
         self.app.logger.log(f"{request.url.path} not found", "error")
-        return self.template("error-404.html", context={"request": request})
+        return self.template("error-404.html", context={"request": request, "url": request.url.path})

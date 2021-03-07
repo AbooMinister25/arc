@@ -99,6 +99,8 @@ class App:
 
         self.config = {}
 
+        self.before_request_funcs = []
+
     async def __call__(self, scope, receive, send):
         self.scope = scope
 
@@ -106,6 +108,12 @@ class App:
 
     async def handle_request(self, request, type):
         try:
+            for func in self.before_request_funcs:
+                if inspect.iscoroutinefunction(func):
+                    await func()
+                else:
+                    func()
+
             handler, kwargs, methods = self.find_handler(
                 request_path=request.url.path)
 
@@ -121,7 +129,7 @@ class App:
                     return self.default_response
 
                 return
-            
+
             elif type == "http":
                 assert request.method.lower() in [method.lower(
                 ) for method in methods], f"Method {request.method.lower()} not allowed"
@@ -184,6 +192,19 @@ class App:
         self.routes[path] = {"handler": handler,
                              "methods": methods}
 
+    def add_routes(self, routes):
+        for path, items in routes.items():
+            assert path not in self.routes, f"Route {path} already exists"
+
+            try:
+                methods = items["methods"]
+            except KeyError:
+                methods = ["GET", "POST", "HEAD", "PUT", "DELETE",
+                           "CONNECT", "OPTIONS", "TRACE", "PATCH"]
+
+            self.routes[path] = {
+                "handler": items["handler"], "methods": methods}
+
     def websocket(self, path: str):
         assert path not in self.routes, f"Route {path} already exists"
 
@@ -197,6 +218,14 @@ class App:
         assert path not in self.routes, f"Route {path} already exists"
 
         self.routes[path] = {"handler": handler}
+
+    def before_request(self, handler):
+
+        def wrapper(handler):
+            self.before_request_funcs.append(handler)
+            return handler
+
+        return handler
 
     def add_middleware(self, middleware_cls, *args):
         self.middleware.add(middleware_cls, *args)
