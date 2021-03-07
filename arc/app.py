@@ -100,8 +100,9 @@ class App:
         self.config = {}
 
         self.before_request_funcs = []
-        
-        self.methods = ["GET", "POST", "HEAD", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]
+
+        self.methods = ["GET", "POST", "HEAD", "PUT",
+                        "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]
 
     async def __call__(self, scope, receive, send):
         self.scope = scope
@@ -137,21 +138,16 @@ class App:
                     assert request.method.lower() in [method.lower(
                     ) for method in methods], f"Method {request.method.lower()} not allowed"
 
-            try:
-                if handler is not None:
+            if handler is not None:
 
-                    if inspect.iscoroutinefunction(handler):
-                        response = await handler(request, **kwargs)
+                if inspect.iscoroutinefunction(handler):
+                    response = await handler(request, **kwargs)
 
-                    else:
-                        response = handler(request, **kwargs)
                 else:
-                    return self.default_response(request)
-
-            except Exception as e:
-                error = traceback.format_exc()
-                print(error)
-                response = self.exception_handler.handle_error(request, error)
+                    response = handler(request, **kwargs)
+            else:
+                return self.default_response(request)
+            
         except:
             error = traceback.format_exc()
             print(error)
@@ -171,7 +167,7 @@ class App:
                     methods = items["methods"]
                 except:
                     methods = None
-            
+
                 if parse_result is not None:
                     return handler, parse_result.named, methods
             else:
