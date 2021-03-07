@@ -100,6 +100,8 @@ class App:
         self.config = {}
 
         self.before_request_funcs = []
+        
+        self.methods = ["GET", "POST", "HEAD", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]
 
     async def __call__(self, scope, receive, send):
         self.scope = scope
@@ -131,8 +133,9 @@ class App:
                 return
 
             elif type == "http":
-                assert request.method.lower() in [method.lower(
-                ) for method in methods], f"Method {request.method.lower()} not allowed"
+                if methods is not None:
+                    assert request.method.lower() in [method.lower(
+                    ) for method in methods], f"Method {request.method.lower()} not allowed"
 
             try:
                 if handler is not None:
@@ -161,14 +164,21 @@ class App:
 
     def find_handler(self, request_path):
         for path, items in self.routes.items():
-            handler = items["handler"]
-            try:
-                methods = items["methods"]
-            except:
-                methods = None
             parse_result = parse(path, request_path)
-            if parse_result is not None:
-                return handler, parse_result.named, methods
+            if isinstance(items, dict):
+                handler = items["handler"]
+                try:
+                    methods = items["methods"]
+                except:
+                    methods = None
+            
+                if parse_result is not None:
+                    return handler, parse_result.named, methods
+            else:
+                handler = items
+                methods = self.methods
+                if parse_result is not None:
+                    return handler, parse_result.named, methods
 
         return None, None, methods
 

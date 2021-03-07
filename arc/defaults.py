@@ -28,3 +28,11 @@ class DefaultExceptionHandler:
     def handle_404(self, request):
         self.app.logger.log(f"{request.url.path} not found", "error")
         return self.template("error-404.html", context={"request": request, "url": request.url.path})
+
+
+class DocumentationMiddleware(Middleware):
+    async def process_request(self, req):
+        ...
+    
+    async def process_response(self, req, res):
+        ...

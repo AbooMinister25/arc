@@ -19,6 +19,7 @@ nav:
   - Deployment: 'deployment.md'
   - Sessions: 'sessions.md'
   - Websockets: 'websockets.md'
+  - Class Based Routing: 'class_based_routing.md'
 
 
 markdown_extensions:
