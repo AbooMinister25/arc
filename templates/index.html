@@ -445,37 +445,37 @@
                 
                 <h1 id="templates">Templates</h1>
 <p>Like any other web framework, Arc has support for HTML templates, and uses jinja2 for templating. If you've ever used Flask, this should be very familiar, as Flask uses jinja2's templating syntax as well. Arc has a very straightforward way for creating templates. First, create a <code>templates</code> directory in your current working folder. Jinja2 will search for templates in a <code>templates</code> directory, though you are able to change that. Inside the <code>templates</code> directory you just created, make an <code>index.html</code> file, and copy and paste the following content into it.</p>
-<pre><code class="language-html">&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-    &lt;head&gt;
-        &lt;title&gt;{{title}}&lt;/title&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-        &lt;h1&gt;{{heading}}&lt;/h1&gt;
-    &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>{{title}}<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>{{heading}}<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
 <p>Once you've done that, save and close the file, and go back to the python file you were working in. Add the following code to the file.</p>
-<pre><code class="language-py">from arc import App, Template
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">Template</span>
 
-app = App()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
 
-template = Template()
+<span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">()</span>
 
-@app.route(&quot;/&quot;)
-def index(request):
-    return template(&quot;index.html&quot;, context={&quot;request&quot;: request, &quot;title&quot;: &quot;Templates&quot;, &quot;heading&quot;: &quot;Arc is AMAZING&quot;})
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">template</span><span class="p">(</span><span class="s2">&quot;index.html&quot;</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Templates&quot;</span><span class="p">,</span> <span class="s2">&quot;heading&quot;</span><span class="p">:</span> <span class="s2">&quot;Arc is AMAZING&quot;</span><span class="p">})</span>
 
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
 <p>Once you have that, run your file and head to <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a> to see your web page in action. Once you're there, you should see the text <code>Arc is AMAZING</code> on the screen. Now, lets break down what we've done here. Instead of importing <code>TextResponse</code> like before, we used Arc's <code>Template</code> class. The <code>Template</code> class behaves just like a response, and requires you to fill out a template name, and the context, which is a dict. You are required to provide <code>request</code> to the context as a key. By default, the <code>Template</code> class searches for templates in the <code>templates</code> directory, but you can change that by doing the following.</p>
-<pre><code class="language-py">from arc import App, Template
+<p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">Template</span>
 
-app = App()
-template = Template(directory=&quot;pages&quot;)
-</code></pre>
-<p>If you do the above, arc will then search for templates in the <code>pages</code> directory.</p>
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
+<span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;pages&quot;</span><span class="p">)</span>
+</code></pre></div>
+If you do the above, arc will then search for templates in the <code>pages</code> directory.</p>
                 
               
               

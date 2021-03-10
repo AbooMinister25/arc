@@ -445,24 +445,24 @@
                 
                 <h1 id="collections">Collections</h1>
 <p>Everything that we've been doing so far has been inside a single python file. For us, this is completely fine, but say you were working on a larger application, a single python file would get confusing to navigate and use. For that very reason, Arc has a class called <code>Collection</code>. This class does sort of the same thing as Flask's <code>Blueprint</code> class. The <code>Collection</code> class basically groups together a set of routes which can then be appended to the main <code>App</code> object, allowing your code to be spread out across multiple python files. Alright, open a new project directory, and make two python files, <code>__init__.py</code> and <code>test.py</code>. Copy and paste the following code into <code>__init__.py</code>.</p>
-<pre><code class="language-py">from arc import App
-from .test import mycollection
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span>
+<span class="kn">from</span> <span class="nn">.test</span> <span class="kn">import</span> <span class="n">mycollection</span>
 
-app = App()
-app.register_collection(mycollection)
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
+<span class="n">app</span><span class="o">.</span><span class="n">register_collection</span><span class="p">(</span><span class="n">mycollection</span><span class="p">)</span>
 
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
 <p>The above code is initializing our app, as normal, but its importing a <code>mycollection</code> object from <code>test.py</code>, which we'll make in a moment, and using the <code>App</code> class's <code>.register_collection</code> function to add the <code>mycollection</code> module to our main app. Now, for <code>test.py</code>, copy and paste the following code into it.</p>
-<pre><code class="language-py">from arc import Collection, TextResponse
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">TextResponse</span>
 
-mycollection = Collection()
+<span class="n">mycollection</span> <span class="o">=</span> <span class="n">Collection</span><span class="p">()</span>
 
-@mycollection.route(&quot;/&quot;)
-def index(request):
-    return TextResponse(&quot;Collections are cool :D&quot;)
-</code></pre>
+<span class="nd">@mycollection</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TextResponse</span><span class="p">(</span><span class="s2">&quot;Collections are cool :D&quot;</span><span class="p">)</span>
+</code></pre></div>
 <p>As you can see above, a collection behaves almost exactly like the main app class, and has most of the same methods, and the ability to serve HTML templates and create cookies, so you're not losing anything by using a collection. Alright, lets test this out, run your <code>__init__.py</code> file and head to <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a> to see your app in action.</p>
                 
               

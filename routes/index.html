@@ -445,67 +445,67 @@
                 
                 <h1 id="routes">Routes</h1>
 <p>If you've used a web framework before, you know that you have to define routes in your application. Routes are sort of like highways that send requests to the code that handles them. In Arc, there are two ways you can create routes, one of which uses decorators, similar to Flask and Bottle, and the other takes inspiration from Django. Below is how you can create routes using Arcs default decorator syntax.</p>
-<pre><code class="language-py">from arc import App, TextResponse
+<p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">TextResponse</span>
 
-app = App()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
 
-@app.route(&quot;/home&quot;)
-def home(request):
-    return TextResponse(&quot;Welcome to the home page&quot;)
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/home&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TextResponse</span><span class="p">(</span><span class="s2">&quot;Welcome to the home page&quot;</span><span class="p">)</span>
 
-@app.route(&quot;/&quot;)
-def index(request):
-    return TextResponse(&quot;Go to http://localhost:5000/home to see the home page&quot;)
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TextResponse</span><span class="p">(</span><span class="s2">&quot;Go to http://localhost:5000/home to see the home page&quot;</span><span class="p">)</span>
 
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
-<p>The above code is signifying two different routes. One of which is <code>/home</code>, which executes the code in the <code>home()</code> function defined here. Another specifies the <code>/</code> route, which points to http://localhost:5000. If you prefer a more Django like routing style, you can do the below.</p>
-<pre><code class="language-py">from arc import App, TextResponse
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
+The above code is signifying two different routes. One of which is <code>/home</code>, which executes the code in the <code>home()</code> function defined here. Another specifies the <code>/</code> route, which points to http://localhost:5000. If you prefer a more Django like routing style, you can do the below.</p>
+<p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">TextResponse</span>
 
-app = App()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
 
-def home(request):
-    return TextResponse(&quot;Welcome to the home page&quot;)
+<span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TextResponse</span><span class="p">(</span><span class="s2">&quot;Welcome to the home page&quot;</span><span class="p">)</span>
 
-def index(request):
-    return TextResponse(&quot;Go to http://localhost:5000/home to see the home page&quot;)
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TextResponse</span><span class="p">(</span><span class="s2">&quot;Go to http://localhost:5000/home to see the home page&quot;</span><span class="p">)</span>
 
-app.add_route(&quot;/home&quot;, home)
-app.add_route(&quot;/&quot;, index)
+<span class="n">app</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s2">&quot;/home&quot;</span><span class="p">,</span> <span class="n">home</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
 
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
-<p>The above does the exact same thing as the first example with decorators, but instead of a decorator based routing system, we're using the <code>App</code> class's <code>.add_route</code> method. Now lets take a closer look at the handlers. A basic handler is structured as the following.</p>
-<pre><code class="language-py">def handler_name(request):
-    # handler code
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
+The above does the exact same thing as the first example with decorators, but instead of a decorator based routing system, we're using the <code>App</code> class's <code>.add_route</code> method. Now lets take a closer look at the handlers. A basic handler is structured as the following.
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">handler_name</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c1"># handler code</span>
+</code></pre></div></p>
 <p>When making routes, you can also specify what request methods are allowed for the route, such as the following.</p>
-<pre><code class="language-py">from arc import App, TextResponse
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">TextResponse</span>
 
-app = App()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
 
-@app.route(&quot;/&quot;, methods=[&quot;GET&quot;])
-def home(request):
-    return TextResponse(&quot;Only get requests are allowed on this route&quot;)
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TextResponse</span><span class="p">(</span><span class="s2">&quot;Only get requests are allowed on this route&quot;</span><span class="p">)</span>
 
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
 <p>In the above, if you try something other than a GET request, you'll get an error.</p>
 <p>You have a function name, which you can define as anything you want, one parameter, which represent the <code>request</code>, and the contents of the handler, which decide what to do. You can use different response types to add content to the web page. You can also use query parameters in your routes. Query parameters are similar to path parameters, but are optional, and you don't set them as a variable in your handler. They can be used as the below.</p>
-<pre><code class="language-py">from arc import App, TextResponse
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">TextResponse</span>
 
-app = App()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
 
-@app.route(&quot;/&quot;)
-def index(request):
-    return TextResponse(request.query_params[&quot;data&quot;])
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TextResponse</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
 
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
 <p>Now, in the above, we're using the <code>request</code> variable to access our query parameters. Run your app, and head to <a href="http://127.0.0.1:5000/?data=test">http://127.0.0.1:5000/?data=test</a> and you should see the words <code>test</code> on your screen. In our route, we're specifiying query parameters by doing <code>/?key=value</code>, where the key is what our query parameter is called inside our <code>query_params</code> dict. If you run the above without specifying <code>data</code>, your application will raise an error, so if you use query params, make sure to have something in place that'll allow you to check whether the query parameter you want is entered.</p>
                 
               

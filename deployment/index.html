@@ -445,9 +445,9 @@
                 
                 <h1 id="deployment">Deployment</h1>
 <p>Once you're done making your website, you'll probably want to deploy it. I don't suggest running the default uvicorn web server for deployment, instead you can use <code>guvicorn</code> with <code>UvicornWorker</code>. Keep in mind that <code>guvicorn</code> is only available on linux. You can use the following to deploy it.</p>
-<pre><code>gunicorn -k uvicorn.workers.UvicornWorker --reload main:app
-</code></pre>
-<p>You can look at the uvicorn and gunicorn documentations on more information on this.</p>
+<p><div class="highlight"><pre><span></span><code>gunicorn -k uvicorn.workers.UvicornWorker --reload main:app
+</code></pre></div>
+You can look at the uvicorn and gunicorn documentations on more information on this.</p>
                 
               
               

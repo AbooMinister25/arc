@@ -445,17 +445,17 @@
                 
                 <h1 id="async">Async</h1>
 <p>Arc has support for creating asynchronous routes and handlers, which can lead to better performance. Copy and paste the below code into your python file.</p>
-<pre><code class="language-py">from arc import App, TextResponse
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">TextResponse</span>
 
-app = App()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
 
-@app.route(&quot;/&quot;)
-async def index(request):
-    return TextResponse(&quot;Hello Async!&quot;)
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TextResponse</span><span class="p">(</span><span class="s2">&quot;Hello Async!&quot;</span><span class="p">)</span>
 
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
 <p>Now, head to <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a> to see your app in action.</p>
                 
               

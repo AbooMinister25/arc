@@ -448,26 +448,26 @@
 <p>Arc is a python ASGI web framework designed for creating fast and dynamic web applications. Its still heavily under development, so if you encounter a problem, feel free to open an issue, all help is appreciated. Arc is built using Starlette and it runs on the lighting fast uvicorn web server.</p>
 <h1 id="installation">Installation</h1>
 <p>Arc is fairly straightforward with its installation process, and can be installed using <code>pip</code>.</p>
-<pre><code># Windows
+<div class="highlight"><pre><span></span><code># Windows
 pip install arcframework
 
 # Linux
 pip3 install arcframework
-</code></pre>
+</code></pre></div>
 <h1 id="quickstart">Quickstart</h1>
 <p>Arc is very straightforward to use, and is similar to frameworks such as Flask and Bottle.</p>
 <p><strong>main.py</strong>:</p>
-<pre><code class="language-py">from arc import App, TextResponse
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">TextResponse</span>
 
-app = App()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
 
-@app.route(&quot;/&quot;)
-def home(request):
-    return TextResponse(&quot;Hello, World&quot;)
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TextResponse</span><span class="p">(</span><span class="s2">&quot;Hello, World&quot;</span><span class="p">)</span>
 
-if __name__ == &quot;__main__&quot;: 
-    app.run()
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span> 
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
 <h1 id="performance">Performance</h1>
 <p>Arc has decent performance, due to it being built with the stability of starlette, and running on uvicorn, and is async ready. For more performance, and for use in production environments, you can use gunicorn with UvicornWorker to squeeze the extra bit of performance out of Arc.</p>
                 

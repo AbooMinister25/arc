@@ -445,36 +445,36 @@
                 
                 <h1 id="sessions">Sessions</h1>
 <p>Arc has support for creating web sessions. If you don't know what they are, sessions are basically temporary pieces of data that the server stores for future reference. Sessions are often confused with cookies, but cookies are stored on the client end, and sessions are stored on the server, making them more secure. Arc has a very straightforward way to implement sessions into your application. Just copy and paste the following code into your python file.</p>
-<pre><code class="language-py">from arc import App, TextResponse, SessionHandler
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">TextResponse</span><span class="p">,</span> <span class="n">SessionHandler</span>
 
-app = App()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
 
-session = SessionHandler(app)
+<span class="n">session</span> <span class="o">=</span> <span class="n">SessionHandler</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 
-@app.route(&quot;/&quot;)
-async def index(request):
-    response = TextResponse(&quot;Sessions are cool :D&quot;)
-    session.init_session(request, response)
-    session()[&quot;data&quot;] = &quot;Arc is AMAZING&quot;
-    return response
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">TextResponse</span><span class="p">(</span><span class="s2">&quot;Sessions are cool :D&quot;</span><span class="p">)</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">init_session</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+    <span class="n">session</span><span class="p">()[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Arc is AMAZING&quot;</span>
+    <span class="k">return</span> <span class="n">response</span>
 
 
-@app.route(&quot;/getsession&quot;)
-async def getsession(request):
-    return TextResponse(f&quot;Session Data: {session()[&quot;data&quot;]}&quot;)
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/getsession&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">getsession</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TextResponse</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Session Data: </span><span class="si">{</span><span class="n">session</span><span class="p">()[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
 <p>Alright, so you may have noticed that we have imported a new class, the <code>SessionHandler</code> class, which is used to create and use sessions. We called it using the <code>init_session</code> method, and interact with it similarly to a dict like object. By default, sessions last one hour, and expire after that, you do the following.</p>
-<pre><code class="language-py">session = SessionHandler(app, lifetime=app.to_seconds(48, &quot;hour&quot;))
-</code></pre>
-<p>You can also optionally pass a secret key, like the following.</p>
-<pre><code class="language-py">import secrets
-...
-session = SessionHandler(app, secret_key=secrets.tokens.urlsafe(20))
-</code></pre>
-<p>Your secret key is added to the unique session token that is generated each time a new session is opened. At the moment, sesions are still being developed, so feel free to open an issue on any problems or risks with the security of the sessions, or make a pull request.</p>
+<p><div class="highlight"><pre><span></span><code><span class="n">session</span> <span class="o">=</span> <span class="n">SessionHandler</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">lifetime</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">to_seconds</span><span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="s2">&quot;hour&quot;</span><span class="p">))</span>
+</code></pre></div>
+You can also optionally pass a secret key, like the following.</p>
+<p><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">secrets</span>
+<span class="o">...</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">SessionHandler</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">secret_key</span><span class="o">=</span><span class="n">secrets</span><span class="o">.</span><span class="n">tokens</span><span class="o">.</span><span class="n">urlsafe</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+</code></pre></div>
+Your secret key is added to the unique session token that is generated each time a new session is opened. At the moment, sesions are still being developed, so feel free to open an issue on any problems or risks with the security of the sessions, or make a pull request.</p>
                 
               
               

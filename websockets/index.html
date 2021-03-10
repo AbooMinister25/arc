@@ -445,111 +445,111 @@
                 
                 <h1 id="websockets">Websockets</h1>
 <p>Like any good framework, Arc has full support for creating and using websockets. If you don't know what a websocket is, its basically a way for your frontend to communicate with your backend. So if you have javascript frontend code, you can use websockets to communicate your python backend with your javascript frontend. This can be extremely useful, and Arc makes websockets easy and very straightforward to use. Arc's websockets integration uses Starlettes <code>WebSocket</code> class. Below is a basic example using websockets in Arc.</p>
-<pre><code class="language-py">from arc import App, HTML
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">HTML</span>
 
-app = App()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
 
-@app.route(&quot;/&quot;)
-async def index(request):
-    return HTML(
-&quot;&quot;&quot;
-&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-    &lt;head&gt;
-        &lt;title&gt; Websockets :D &lt;/title&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-        &lt;h1&gt; Type in a message below &lt;/h1&gt;
-        &lt;form action=&quot;&quot; onsubmit=&quot;displayMessage(event)&quot;&gt;
-            &lt;input type=&quot;text&quot; id=&quot;messageText&quot; autocomplete=&quot;off&quot; /&gt;
-            &lt;button&gt;Display&lt;/button&gt;
-        &lt;/form&gt;
-        &lt;ul id=&quot;messages&quot;&gt;&lt;/ul&gt;
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">HTML</span><span class="p">(</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&lt;!DOCTYPE html&gt;</span>
+<span class="sd">&lt;html&gt;</span>
+<span class="sd">    &lt;head&gt;</span>
+<span class="sd">        &lt;title&gt; Websockets :D &lt;/title&gt;</span>
+<span class="sd">    &lt;/head&gt;</span>
+<span class="sd">    &lt;body&gt;</span>
+<span class="sd">        &lt;h1&gt; Type in a message below &lt;/h1&gt;</span>
+<span class="sd">        &lt;form action=&quot;&quot; onsubmit=&quot;displayMessage(event)&quot;&gt;</span>
+<span class="sd">            &lt;input type=&quot;text&quot; id=&quot;messageText&quot; autocomplete=&quot;off&quot; /&gt;</span>
+<span class="sd">            &lt;button&gt;Display&lt;/button&gt;</span>
+<span class="sd">        &lt;/form&gt;</span>
+<span class="sd">        &lt;ul id=&quot;messages&quot;&gt;&lt;/ul&gt;</span>
 
-        &lt;script&gt;
-            var ws = new WebSocket(&quot;ws://localhost:5000/ws&quot;);
-            ws.onmessage = function(event) {
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            };
-            function displayMessage(event) {
-                var input = document.getElementById(&quot;messageText&quot;)
-                ws.send(input.value)
-                input.value = ''
-                event.preventDefault()
-            }
-        &lt;/script&gt;
-    &lt;/body&gt;
-&lt;/html&gt;
-&quot;&quot;&quot;
-    )
+<span class="sd">        &lt;script&gt;</span>
+<span class="sd">            var ws = new WebSocket(&quot;ws://localhost:5000/ws&quot;);</span>
+<span class="sd">            ws.onmessage = function(event) {</span>
+<span class="sd">                var messages = document.getElementById(&#39;messages&#39;)</span>
+<span class="sd">                var message = document.createElement(&#39;li&#39;)</span>
+<span class="sd">                var content = document.createTextNode(event.data)</span>
+<span class="sd">                message.appendChild(content)</span>
+<span class="sd">                messages.appendChild(message)</span>
+<span class="sd">            };</span>
+<span class="sd">            function displayMessage(event) {</span>
+<span class="sd">                var input = document.getElementById(&quot;messageText&quot;)</span>
+<span class="sd">                ws.send(input.value)</span>
+<span class="sd">                input.value = &#39;&#39;</span>
+<span class="sd">                event.preventDefault()</span>
+<span class="sd">            }</span>
+<span class="sd">        &lt;/script&gt;</span>
+<span class="sd">    &lt;/body&gt;</span>
+<span class="sd">&lt;/html&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="p">)</span>
 
-@app.websocket(&quot;/ws&quot;)
-async def test_websocket(websocket):
-    await websocket.accept()
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f&quot;You entered: {data}&quot;)
+<span class="nd">@app</span><span class="o">.</span><span class="n">websocket</span><span class="p">(</span><span class="s2">&quot;/ws&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_websocket</span><span class="p">(</span><span class="n">websocket</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">receive_text</span><span class="p">()</span>
+        <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You entered: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
 <p>Alright, thats a lot to take in, so lets break it down. So, as you may have noticed, alongside our <code>App</code> class, we imported the <code>HTML</code> class, which is used for rendering responses in the form of html. We then rendered an HTML page that has a text box for you to enter text, and a submit button. We also have some javascript code that connects to our websocket and provides functions on what to do when it recieves a message, and when the text box form is submitted. We then used a new type of function from <code>Arc</code>, the <code>app.websocket</code> method, which is used to create websockets, and requires a default <code>websocket</code> argument. Keep in mind that websocket handlers always have to be asynchronous. So what our websocket handler is doing is waiting for a message, and sending back that message to the frontend for the js to load into the html page. Now, lets run our app and head to <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a>. Once you're there, type in the text box that should have appeared and click the <code>Display</code> button, and if everything went well, the words you just typed into the text box should appear onto the screen. Now, you may not want to have your HTML inside your python file, so lets clean that up and render it using a jinja2 template.</p>
-<pre><code class="language-py">from arc import App, Template
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">Template</span>
 
-app = App()
-template = Template()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
+<span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">()</span>
 
-@app.route(&quot;/&quot;)
-async def index(request):
-    return template(&quot;index.html&quot;, context={&quot;request&quot;: request})
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">template</span><span class="p">(</span><span class="s2">&quot;index.html&quot;</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">request</span><span class="p">})</span>
 
-@app.websocket(&quot;/ws&quot;)
-async def test_websocket(websocket):
-    await websocket.accept()
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f&quot;You entered: {data}&quot;)
+<span class="nd">@app</span><span class="o">.</span><span class="n">websocket</span><span class="p">(</span><span class="s2">&quot;/ws&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_websocket</span><span class="p">(</span><span class="n">websocket</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">receive_text</span><span class="p">()</span>
+        <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You entered: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-if __name__ == &quot;__main__&quot;:
-    app.run()`
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="err">`</span>
+</code></pre></div>
 <p>create a directory called <code>templates</code> and put an <code>index.html</code> file with the following contents inside of it.</p>
-<pre><code class="language-html">&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-    &lt;head&gt;
-        &lt;title&gt; Websockets :D &lt;/title&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-        &lt;h1&gt; Type in a message below &lt;/h1&gt;
-        &lt;form action=&quot;&quot; onsubmit=&quot;displayMessage(event)&quot;&gt;
-            &lt;input type=&quot;text&quot; id=&quot;messageText&quot; autocomplete=&quot;off&quot; /&gt;
-            &lt;button&gt;Display&lt;/button&gt;
-        &lt;/form&gt;
-        &lt;ul id=&quot;messages&quot;&gt;&lt;/ul&gt;
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span> Websockets :D <span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span> Type in a message below <span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">form</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;&quot;</span> <span class="na">onsubmit</span><span class="o">=</span><span class="s">&quot;displayMessage(event)&quot;</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;messageText&quot;</span> <span class="na">autocomplete</span><span class="o">=</span><span class="s">&quot;off&quot;</span> <span class="p">/&gt;</span>
+            <span class="p">&lt;</span><span class="nt">button</span><span class="p">&gt;</span>Display<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">ul</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;messages&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
 
-        &lt;script&gt;
-            var ws = new WebSocket(&quot;ws://localhost:5000/ws&quot;);
-            ws.onmessage = function(event) {
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            };
-            function displayMessage(event) {
-                var input = document.getElementById(&quot;messageText&quot;)
-                ws.send(input.value)
-                input.value = ''
-                event.preventDefault()
-            }
-        &lt;/script&gt;
-    &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
+        <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+            <span class="kd">var</span> <span class="nx">ws</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WebSocket</span><span class="p">(</span><span class="s2">&quot;ws://localhost:5000/ws&quot;</span><span class="p">);</span>
+            <span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+                <span class="kd">var</span> <span class="nx">messages</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;messages&#39;</span><span class="p">)</span>
+                <span class="kd">var</span> <span class="nx">message</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">)</span>
+                <span class="kd">var</span> <span class="nx">content</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createTextNode</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
+                <span class="nx">message</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">content</span><span class="p">)</span>
+                <span class="nx">messages</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
+            <span class="p">};</span>
+            <span class="kd">function</span> <span class="nx">displayMessage</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+                <span class="kd">var</span> <span class="nx">input</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;messageText&quot;</span><span class="p">)</span>
+                <span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">input</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+                <span class="nx">input</span><span class="p">.</span><span class="nx">value</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="nx">event</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
 <p>Once you've done that, run your app, head back to <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a> and watch your app in action. As I mentioned earlier, Arc uses Starlettes <code>WebSocket</code> class to handle websockets, so check out Starlettes documentation on their <code>WebSocket</code> class for more information on what websockets can do <a href="https://www.starlette.io/websockets/">https://www.starlette.io/websockets/</a>. You can check out <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API</a> on more information for the frontend side in the javascript.</p>
                 
               

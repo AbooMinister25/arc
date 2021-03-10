@@ -445,23 +445,23 @@
                 
                 <h1 id="cookies">Cookies</h1>
 <p>Arc has support for creating cookies. Cookies are data that the client browser stores for future use. Below is an example of how you can create cookies in an Arc application.</p>
-<pre><code class="language-py">from arc import App, TextResponse
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">TextResponse</span>
 
-app = App()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
 
-@app.route(&quot;/&quot;)
-def setsession(request):
-    response = TextResponse(&quot;Creating Cookies&quot;)
-    response.set_cookie(&quot;data&quot;, &quot;arc is AMAZING&quot;, max_age=app.to_seconds(10, &quot;hour&quot;))
-    return response
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">setsession</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">TextResponse</span><span class="p">(</span><span class="s2">&quot;Creating Cookies&quot;</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;arc is AMAZING&quot;</span><span class="p">,</span> <span class="n">max_age</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">to_seconds</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;hour&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">response</span>
 
-@app.route(&quot;/getdata&quot;)
-def getdata(request):
-    return TextResponse(request.cookies.get(&quot;data&quot;))
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/getdata&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">getdata</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TextResponse</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">))</span>
 
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
 <p>Lets break this down. Arc uses Starlettes Request and Response classes, which have support for getting and settings cookies. In our first route, we used the <code>.set_cookie()</code> method, and provided a key to access its data, the data, and the <code>max_age</code> parameter. The <code>max_age</code> paramter signifies how long the cookie will last in seconds. To make this easier for you, the <code>App</code> class has a <code>to_seconds()</code> method which takes an integer for the amount and a string which can either be <code>"hour"</code> or <code>"minute"</code>. In our second route, we use the <code>.cookies.get()</code> method to grab our stored cookie. Now, head to <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a> to see your app in action. Make sure not to go to the <code>/getdata</code> route before the <code>/</code> route, as it will raise an error.</p>
                 
               

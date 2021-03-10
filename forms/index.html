@@ -445,92 +445,92 @@
                 
                 <h1 id="forms">Forms</h1>
 <p>Say you have an HTML page that has a form in it, how would you process that data? Luckily, Arc has a built in way to process form data. First, open a python file and put the below code into it.</p>
-<pre><code class="language-py">from arc import App, Form, Redirect, Template
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">Form</span><span class="p">,</span> <span class="n">Redirect</span><span class="p">,</span> <span class="n">Template</span>
 
-app = App()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
 
-template = Template()
+<span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">()</span>
 
-@app.route(&quot;/&quot;)
-async def index(request):
-    if &quot;data&quot; not in request.query_params:
-        data = None
-    else:
-        data = Form(request.query_params[&quot;data&quot;]) 
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s2">&quot;data&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">Form</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span> 
 
-    return template(&quot;index.html&quot;, context={&quot;request&quot;: request, &quot;data&quot;: data})
+    <span class="k">return</span> <span class="n">template</span><span class="p">(</span><span class="s2">&quot;index.html&quot;</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">})</span>
 
-@app.route(&quot;/submitdata&quot;, methods=[&quot;POST&quot;])
-async def submitdata(request):
-    body = await request.body()
-    form = Form(body)
-    return Redirect(f&quot;/?data={form.data}&quot;)
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/submitdata&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">submitdata</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">()</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">Form</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Redirect</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/?data=</span><span class="si">{</span><span class="n">form</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
 <p>Next, open a new HTML file in a <code>templates</code> directory and put the below code into it.</p>
-<pre><code class="language-html">&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-  &lt;head&gt;
-    &lt;title&gt;Forms :D&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;h1&gt;Type in a message below&lt;/h1&gt;
-    &lt;form action=&quot;/submitdata&quot;method=&quot;post&quot;&gt;
-      &lt;input type=&quot;text&quot; id=&quot;messageText&quot; name=&quot;message&quot; autocomplete=&quot;off&quot; /&gt;
-      &lt;button&gt;Display&lt;/button&gt;
-    &lt;/form&gt;
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Forms :D<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Type in a message below<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">form</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;/submitdata&quot;</span><span class="na">method</span><span class="o">=</span><span class="s">&quot;post&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;messageText&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;message&quot;</span> <span class="na">autocomplete</span><span class="o">=</span><span class="s">&quot;off&quot;</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nt">button</span><span class="p">&gt;</span>Display<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
     {% if data is not none %}
-    &lt;h1&gt;{{data[&quot;message&quot;]}}&lt;/h1&gt;
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>{{data[&quot;message&quot;]}}<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
     {% endif %}
-  &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
+  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
 <p>Alright, now lets break down what we did, starting with the python. As you may have noticed, we imported a new class into our code, the <code>Form</code> class, which is used to render form data in a dict like object from the requests body. We created two routes, a <code>/</code> route, and a <code>/submitdata</code> routes. The latter only accepts POST requests, because thats where we'll be submitting our form data to. In the first route, we're checking whether <code>data</code> is in the query parameters of the request. We then return the template with the context filled in. In our second route, we handle the form data. Make sure your second route is asynchronous, as we're awaiting the request body. After we have the body, we used the <code>Form</code> class to get the form data in a dict like object. We then redirected to our <code>/</code> route, and provided <code>data</code> as one of the query parameters. Now, run your application and head to <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a>, and enter a message in the text box and submit it, and you should see your entered message on the screen. Now, we used two routes in this example, but you can also use one route instead. Change your python file so it looks like the below.</p>
-<pre><code class="language-py">from arc import App, Form, Redirect, Template
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">arc</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">Form</span><span class="p">,</span> <span class="n">Redirect</span><span class="p">,</span> <span class="n">Template</span>
 
-app = App()
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
 
-template = Template()
+<span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">()</span>
 
-@app.route(&quot;/&quot;, methods=[&quot;GET&quot;, &quot;POST&quot;])
-async def index(request):
-    if request.method == &quot;GET&quot;:
-        data = None
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;GET&quot;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
 
-        return template(&quot;notindex.html&quot;, context={&quot;request&quot;: request, &quot;data&quot;: data})
+        <span class="k">return</span> <span class="n">template</span><span class="p">(</span><span class="s2">&quot;notindex.html&quot;</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">})</span>
 
-    elif request.method == &quot;POST&quot;:
-        body = await request.body()
-        form = Form(body)
+    <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">()</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">Form</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
 
-        return template(&quot;notindex.html&quot;, context={&quot;request&quot;: request, &quot;data&quot;: form.data})
+        <span class="k">return</span> <span class="n">template</span><span class="p">(</span><span class="s2">&quot;notindex.html&quot;</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">form</span><span class="o">.</span><span class="n">data</span><span class="p">})</span>
 
 
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
 <p>Change your HTML to look like this</p>
-<pre><code class="language-html">&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-  &lt;head&gt;
-    &lt;title&gt;Form :D&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;h1&gt;Type in a message below&lt;/h1&gt;
-    &lt;form action=&quot;&quot;method=&quot;post&quot;&gt;
-      &lt;input type=&quot;text&quot; id=&quot;messageText&quot; name=&quot;message&quot; autocomplete=&quot;off&quot; /&gt;
-      &lt;button&gt;Display&lt;/button&gt;
-    &lt;/form&gt;
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Form :D<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Type in a message below<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">form</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="na">method</span><span class="o">=</span><span class="s">&quot;post&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;messageText&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;message&quot;</span> <span class="na">autocomplete</span><span class="o">=</span><span class="s">&quot;off&quot;</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nt">button</span><span class="p">&gt;</span>Display<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
     {% if data is not none %}
-    &lt;h1&gt;{{data[&quot;username&quot;]}}&lt;/h1&gt;
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>{{data[&quot;username&quot;]}}<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
     {% else %}
-    &lt;h1&gt;Data is None&lt;/h1&gt;
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Data is None<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
     {% endif %}
-  &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
+  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
 <p>Once you've done that, run your application, enter something into the text box, and if you've done everything correctly, the message you've entered should appear on the screen.</p>
                 
               
