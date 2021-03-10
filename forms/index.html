@@ -14,7 +14,7 @@
     
     
       
-        <title>Class Based Routing - Arc Documentation</title>
+        <title>Forms - Arc Documentation</title>
       
     
     
@@ -58,7 +58,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#class-based-routing" class="md-skip">
+        <a href="#forms" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +90,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Class Based Routing
+              Forms
             
           </span>
         </div>
@@ -377,6 +377,21 @@
 
   
   
+  
+    <li class="md-nav__item">
+      <a href="../class_based_routing/" class="md-nav__link">
+        Class Based Routing
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
     
   
   
@@ -388,24 +403,9 @@
       
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Class Based Routing
-      </a>
-      
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../forms/" class="md-nav__link">
         Forms
       </a>
+      
     </li>
   
 
@@ -438,113 +438,100 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/AbooMinister25/arc/edit/master/docs/class_based_routing.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/AbooMinister25/arc/edit/master/docs/forms.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="class-based-routing">Class Based Routing</h1>
-<p>Arc has the ability to use class based routing in your application. Class based routing allows you to take the <code>App</code> class and inherit it in your own class, and lets you define routes from withing the class, which can make your code more organized. To get started, open a python file and place the below into your code.</p>
-<pre><code class="language-py">from arc import App, TextResponse
+                <h1 id="forms">Forms</h1>
+<p>Say you have an HTML page that has a form in it, how would you process that data? Luckily, Arc has a built in way to process form data. First, open a python file and put the below code into it.</p>
+<pre><code class="language-py">from arc import App, Form, Redirect, Template
 
-class MyCustomApplication(App):
-    def __init__(self):
-        super().__init__() # Init parameters for the App class can go here
+app = App()
 
-        self.routes = {
-            &quot;/&quot;: self.index,
-            &quot;/home&quot;: self.home,
-            &quot;/about&quot;: self.about
-        }
+template = Template()
 
-    async def index(self, request):
-        return TextResponse(&quot;Welcome! You can head to http://127.0.0.1:5000/home to go to the home page, and to http://127.0.0.1:5000/about to go to the about page.&quot;)
+@app.route(&quot;/&quot;)
+async def index(request):
+    if &quot;data&quot; not in request.query_params:
+        data = None
+    else:
+        data = Form(request.query_params[&quot;data&quot;]) 
 
-    async def home(self, request):
-        return TextResponse(&quot;Welcome to the home page!&quot;)
+    return template(&quot;index.html&quot;, context={&quot;request&quot;: request, &quot;data&quot;: data})
 
-    async def about(self, request):
-        return TextResponse(&quot;Welcome to the about page!&quot;)
-
-app = MyCustomApplication()
+@app.route(&quot;/submitdata&quot;, methods=[&quot;POST&quot;])
+async def submitdata(request):
+    body = await request.body()
+    form = Form(body)
+    return Redirect(f&quot;/?data={form.data}&quot;)
 
 if __name__ == &quot;__main__&quot;:
     app.run()
 </code></pre>
-<p>Now, lets break the above down. We're importing the <code>App</code> class from Arc and using it as a base class in our custom application. We then called the <code>App</code> class's <code>__init__</code> method, which can be supplied all the normal arguments. We then defined a dictionary called <code>routes</code>, which the <code>App</code> class uses to define a handler for each route. We also created three methods inside our class, <code>index</code>, <code>home</code>, and <code>about</code>, and each of them are used to handle our applications routes. Our custom application has all the methods and features that the <code>App</code> class provides, and allows you to define your own. Now, run your application and head to <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a> to see your app in action. You can visit each of the routes to see what happens. Now, if you want to provide additional options for each of the routes, like the <code>methods</code> option in the decorator method, you can do the below.</p>
-<pre><code class="language-py">from arc import App, TextResponse
+<p>Next, open a new HTML file in a <code>templates</code> directory and put the below code into it.</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Forms :D&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Type in a message below&lt;/h1&gt;
+    &lt;form action=&quot;/submitdata&quot;method=&quot;post&quot;&gt;
+      &lt;input type=&quot;text&quot; id=&quot;messageText&quot; name=&quot;message&quot; autocomplete=&quot;off&quot; /&gt;
+      &lt;button&gt;Display&lt;/button&gt;
+    &lt;/form&gt;
+    {% if data is not none %}
+    &lt;h1&gt;{{data[&quot;message&quot;]}}&lt;/h1&gt;
+    {% endif %}
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Alright, now lets break down what we did, starting with the python. As you may have noticed, we imported a new class into our code, the <code>Form</code> class, which is used to render form data in a dict like object from the requests body. We created two routes, a <code>/</code> route, and a <code>/submitdata</code> routes. The latter only accepts POST requests, because thats where we'll be submitting our form data to. In the first route, we're checking whether <code>data</code> is in the query parameters of the request. We then return the template with the context filled in. In our second route, we handle the form data. Make sure your second route is asynchronous, as we're awaiting the request body. After we have the body, we used the <code>Form</code> class to get the form data in a dict like object. We then redirected to our <code>/</code> route, and provided <code>data</code> as one of the query parameters. Now, run your application and head to <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a>, and enter a message in the text box and submit it, and you should see your entered message on the screen. Now, we used two routes in this example, but you can also use one route instead. Change your python file so it looks like the below.</p>
+<pre><code class="language-py">from arc import App, Form, Redirect, Template
 
-class MyCustomApplication(App):
-    def __init__(self):
-        super().__init__() # Init parameters for the App class can go here
+app = App()
 
-        self.routes = {
-            &quot;/&quot;: {&quot;handler&quot;: self.index, &quot;methods&quot;: [&quot;GET&quot;]},
-            &quot;/home&quot;: self.home,
-            &quot;/about&quot;: self.about,
-        }
+template = Template()
 
-    async def index(self, request):
-        return TextResponse(&quot;Welcome! You can head to http://127.0.0.1:5000/home to go to the home page, and to http://127.0.0.1:5000/about to go to the about page.&quot;)
+@app.route(&quot;/&quot;, methods=[&quot;GET&quot;, &quot;POST&quot;])
+async def index(request):
+    if request.method == &quot;GET&quot;:
+        data = None
 
-    async def home(self, request):
-        return TextResponse(&quot;Welcome to the home page!&quot;)
+        return template(&quot;notindex.html&quot;, context={&quot;request&quot;: request, &quot;data&quot;: data})
 
-    async def about(self, request):
-        return TextResponse(&quot;Welcome to the about page!&quot;)
+    elif request.method == &quot;POST&quot;:
+        body = await request.body()
+        form = Form(body)
 
-app = MyCustomApplication()
+        return template(&quot;notindex.html&quot;, context={&quot;request&quot;: request, &quot;data&quot;: form.data})
+
 
 if __name__ == &quot;__main__&quot;:
     app.run()
 </code></pre>
-<p>Now, when you run your application, if you try to access the <code>/</code> route with a method other than <code>GET</code>, you'll be greeted with an error. Now, lets say you're using collections in your application, luckliy, <code>Arc</code> allows you to use class based handling with collections as well. Now, create a new python file and put the following code into it.</p>
-<pre><code class="language-py">from arc import Collection, TextResponse
-
-class MyCollection(Collection):
-    def __init__(self):
-        super().__init__()
-
-        self.routes = {
-            &quot;/register&quot;: self.register
-        }
-
-    async def register(self, request):
-        return TextResponse(&quot;Welcome to the register page!&quot;)
-
-mycollection = MyCollection()
+<p>Change your HTML to look like this</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Form :D&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Type in a message below&lt;/h1&gt;
+    &lt;form action=&quot;&quot;method=&quot;post&quot;&gt;
+      &lt;input type=&quot;text&quot; id=&quot;messageText&quot; name=&quot;message&quot; autocomplete=&quot;off&quot; /&gt;
+      &lt;button&gt;Display&lt;/button&gt;
+    &lt;/form&gt;
+    {% if data is not none %}
+    &lt;h1&gt;{{data[&quot;username&quot;]}}&lt;/h1&gt;
+    {% else %}
+    &lt;h1&gt;Data is None&lt;/h1&gt;
+    {% endif %}
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<p>Once you've done that, head to your main python file and change it so it looks like this.</p>
-<pre><code class="language-py">from arc import App, TextResponse
-from .collectionfile import mycollection # Replace this with the name of your other python file
-
-class MyCustomApplication(App):
-    def __init__(self):
-        super().__init__() # Init parameters for the App class can go here
-
-        self.routes = {
-            &quot;/&quot;: self.index,
-            &quot;/home&quot;: self.home,
-            &quot;/about&quot;: self.about
-        }
-
-    async def index(self, request):
-        return TextResponse(&quot;Welcome! You can head to http://127.0.0.1:5000/home to go to the home page, and to http://127.0.0.1:5000/about to go to the about page.&quot;)
-
-    async def home(self, request):
-        return TextResponse(&quot;Welcome to the home page!&quot;)
-
-    async def about(self, request):
-        return TextResponse(&quot;Welcome to the about page!&quot;)
-
-app = MyCustomApplication()
-
-app.register_collection(mycollection)
-
-if __name__ == &quot;__main__&quot;:
-    app.run()
-</code></pre>
-<p>Now, run your app and head to <a href="http://127.0.0.1:5000:/register">http://127.0.0.1:5000/register</a> and you should see your collection in action.</p>
+<p>Once you've done that, run your application, enter something into the text box, and if you've done everything correctly, the message you've entered should appear on the screen.</p>
                 
               
               
@@ -562,7 +549,7 @@ if __name__ == &quot;__main__&quot;:
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
-        <a href="../websockets/" class="md-footer__link md-footer__link--prev" rel="prev">
+        <a href="../class_based_routing/" class="md-footer__link md-footer__link--prev" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -571,25 +558,11 @@ if __name__ == &quot;__main__&quot;:
               <span class="md-footer__direction">
                 Previous
               </span>
-              Websockets
+              Class Based Routing
             </div>
           </div>
         </a>
       
-      
-        <a href="../forms/" class="md-footer__link md-footer__link--next" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Forms
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-          </div>
-        </a>
       
     </nav>
   
