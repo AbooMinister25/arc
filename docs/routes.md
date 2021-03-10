@@ -60,4 +60,19 @@ if __name__ == "__main__":
 
 In the above, if you try something other than a GET request, you'll get an error.
 
-You have a function name, which you can define as anything you want, one parameter, which represent the `request`, and the contents of the handler, which decide what to do. You can use different response types to add content to the web page.
+You have a function name, which you can define as anything you want, one parameter, which represent the `request`, and the contents of the handler, which decide what to do. You can use different response types to add content to the web page. You can also use query parameters in your routes. Query parameters are similar to path parameters, but are optional, and you don't set them as a variable in your handler. They can be used as the below.
+
+```py
+from arc import App, TextResponse
+
+app = App()
+
+@app.route("/")
+def index(request):
+    return TextResponse(request.query_params["data"])
+
+if __name__ == "__main__":
+    app.run()
+```
+
+Now, in the above, we're using the `request` variable to access our query parameters. Run your app, and head to [http://127.0.0.1:5000/?data=test](http://127.0.0.1:5000/?data=test) and you should see the words `test` on your screen. In our route, we're specifiying query parameters by doing `/?key=value`, where the key is what our query parameter is called inside our `query_params` dict. If you run the above without specifying `data`, your application will raise an error, so if you use query params, make sure to have something in place that'll allow you to check whether the query parameter you want is entered.

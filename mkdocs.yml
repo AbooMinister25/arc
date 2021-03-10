@@ -20,7 +20,7 @@ nav:
   - Sessions: 'sessions.md'
   - Websockets: 'websockets.md'
   - Class Based Routing: 'class_based_routing.md'
-
+  - Forms: 'forms.md'
 
 markdown_extensions:
   - toc

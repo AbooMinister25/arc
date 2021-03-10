@@ -1,4 +1,4 @@
-# Arc 2.5.3
+# Arc 2.7.1
 ### Python ASGI web framework for creating fast and dynamic web applications.
 
 Arc is a python ASGI web framework for creating dynamic web pages. Arc is still under heavy devlopment, and all help is appreciated. Arc is built using `Starlette`, and runs on the lighting fast `uvicorn` web server.

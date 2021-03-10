@@ -4,6 +4,7 @@ from arc.staticfiles import StaticFile
 from arc.logger import Logger
 import uvicorn
 from parse import parse
+from urllib.parse import urlsplit, parse_qs
 import traceback
 import inspect
 
@@ -82,7 +83,7 @@ class App:
         if exception_handler is None:
             self.exception_handler = DefaultExceptionHandler(self)
         else:
-            self.exception_handler = exception_handler()
+            self.exception_handler = exception_handler(self)
 
         self.middleware = Middleware(self)
 
@@ -133,12 +134,11 @@ class App:
 
                 return
 
-            elif type == "http":
+            if handler is not None:
+
                 if methods is not None:
                     assert request.method.lower() in [method.lower(
-                    ) for method in methods], f"Method {request.method.lower()} not allowed"
-
-            if handler is not None:
+                    ) for method in methods], f"Method {request.method.lower()} not allowed at url {request.url.path}"
 
                 if inspect.iscoroutinefunction(handler):
                     response = await handler(request, **kwargs)
@@ -147,7 +147,7 @@ class App:
                     response = handler(request, **kwargs)
             else:
                 return self.default_response(request)
-            
+
         except:
             error = traceback.format_exc()
             print(error)
@@ -160,7 +160,11 @@ class App:
 
     def find_handler(self, request_path):
         for path, items in self.routes.items():
-            parse_result = parse(path, request_path)
+            arguments = parse(path, request_path)
+
+            queries = urlsplit(request_path).query
+            parsed_queries = parse_qs(queries)
+
             if isinstance(items, dict):
                 handler = items["handler"]
                 try:
@@ -168,13 +172,30 @@ class App:
                 except:
                     methods = None
 
-                if parse_result is not None:
-                    return handler, parse_result.named, methods
+                if arguments is not None:
+                    parsed_args = {}
+
+                    for key, value in arguments.named.items():
+                        data = value.split("?")
+                        parsed_args[key] = data[0]
+
+                    parsed_args.update(parsed_queries)
+
+                    return handler, parsed_args, methods
+
             else:
                 handler = items
                 methods = self.methods
-                if parse_result is not None:
-                    return handler, parse_result.named, methods
+                if arguments is not None:
+                    parsed_args = {}
+
+                    for key, value in arguments.named.items():
+                        data = value.split("?")
+                        parsed_args[key] = data[0]
+
+                    parsed_args.update(parsed_queries)
+
+                    return handler, parsed_args, methods
 
         return None, None, methods
 
