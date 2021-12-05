@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "arcframework"
+version = "0.1.0"
+description = ""
+authors = ["AbooMinister25 <aboominister@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+uvicorn = "^0.15.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+black = "^21.11b1"
+flake8 = "^4.0.1"
+isort = "^5.10.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
