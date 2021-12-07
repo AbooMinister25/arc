@@ -1,10 +1,9 @@
-from typing import Sequence, Optional
-import asyncio
-
-from arc.types import CoroutineFunction
-from arc.router import Router, Route
+from typing import Optional, Sequence
 
 import uvicorn
+
+from arc.router import Route, Router
+from arc.types import CoroutineFunction
 
 
 class Arc:

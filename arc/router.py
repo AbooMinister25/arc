@@ -1,9 +1,10 @@
-from typing import Optional, Callable, Sequence, Pattern
-from urllib.parse import urlsplit, parse_qs
-import re
 import inspect
+import re
+from typing import Any, Optional, Pattern, Sequence
+from urllib.parse import parse_qs
 
-from arc.responses import JSONResponse, HTTPResponse
+from arc.errors import InvalidTypeError
+from arc.responses import JSONResponse
 from arc.types import CoroutineFunction, DCallable
 
 METHODS = {
@@ -49,7 +50,7 @@ def compile_path_regex(path: str, path_params: list[str]) -> Pattern:
     :return: A compiled regex pattern
     """
 
-    new_path = re.escape(path)  # Escape possible regex characters in the path
+    new_path = path
 
     for param in path_params:
         new_path = new_path.replace(
@@ -57,6 +58,56 @@ def compile_path_regex(path: str, path_params: list[str]) -> Pattern:
         )  # Replace the path parameter with a regex group for matching it
 
     return re.compile(new_path)
+
+
+def parse_params(
+    q_params: dict[str, Any],
+    p_params: dict[str, Any],
+    types: dict[str, type],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """
+    Function used to parse query and path parameters to their corresponding types
+
+    :param q_params: A dictionary of query parameters and their values
+    :param p_params: a dictionary of path parameters and their values
+    :param types: A dictionary of the handler function's parameter typess
+    :return: A tuple of two dicts which contain the parsed query and path parameters
+    """
+
+    parsed_q = {}  # Parsed query parameters
+    parsed_p = {}  # Paresd path parameters
+
+    for name, value in q_params.items():
+        type_ = types.get(name)
+        if type_ is None:
+            # If the type wasn't declared for the parameter,
+            # continue to the next iteration of the loop
+            continue
+
+        try:
+            # Try to cast the parameter to the corresponding type, otherwise raise an error
+            parsed_q[name] = type_(value)
+        except ValueError:
+            raise InvalidTypeError(
+                f"Could not parse query parameter {name} to {type_.__name__}"
+            )
+
+    for name, value in p_params.items():
+        type_ = types.get(name)
+        if type_ is None:
+            # If the type wasn't declared for the parameter,
+            # continue to the next iteration of the loop
+            continue
+
+        try:
+            # Try to cast the parameter to the corresponding type, otherwise raise an error
+            parsed_p[name] = type_(value)
+        except ValueError:
+            raise InvalidTypeError(
+                f"Could not parse query parameter {name} to {type_.__name__}"
+            )
+
+    return parsed_q, parsed_p
 
 
 class Route:
@@ -155,7 +206,8 @@ class Router:
         self, scope: dict, receive: CoroutineFunction, send: CoroutineFunction
     ):
         if scope["type"] not in ("http", "websocket"):
-            # Check whether the type of the request is HTTP or websockeet, and if its not, return an error
+            # Check whether the type of the request is HTTP or
+            # websockeet, and if not, return an error
             response = JSONResponse(
                 {
                     "Error": f"Invalid request type {scope['type']}, expected http or websocket"
@@ -172,7 +224,7 @@ class Router:
             if route.methods:
                 if scope["method"].lower() not in route.methods:
                     response = JSONResponse(
-                        {"Error": f"Method not allowed"}, status_code=405
+                        {"Error": "Method not allowed"}, status_code=405
                     )
                     await response(scope, receive, send)
                     return
@@ -180,7 +232,21 @@ class Router:
             match = route.path_regex.match(scope["path"])
             if match:
                 path_params = match.groupdict()
-                query_params = parse_qs(urlsplit(scope["path"]).query)
+                query_params = {
+                    k.decode(): v[0] for k, v in parse_qs(scope["query_string"]).items()
+                }
+
+                if route.handler.__annotations__:
+                    # Only try to parse parameters if explicit types are declared
+                    try:
+                        query_params, path_params = parse_params(
+                            query_params, path_params, route.handler.__annotations__
+                        )
+                    except InvalidTypeError as e:
+                        # If the type conversion failed, return an error response
+                        response = JSONResponse({"Error": e}, status_code=400)
+                        await response(scope, receive, send)
+                        return
 
                 response = await route.handler(*path_params.values(), **query_params)
                 await response(scope, receive, send)
