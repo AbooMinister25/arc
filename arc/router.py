@@ -133,7 +133,7 @@ class Route:
         self.handler = handler
         if methods:
             if not all(
-                method in METHODS for method in methods
+                method.lower() in METHODS for method in methods
             ):  # If a given request method isn't in the global METHODS set, raise an error
                 raise AttributeError("Invalid request methods provided")
         self.methods = methods
@@ -221,16 +221,16 @@ class Router:
             scope["router"] = self
 
         for route in self.routes:
-            if route.methods:
-                if scope["method"].lower() not in route.methods:
-                    response = JSONResponse(
-                        {"Error": "Method not allowed"}, status_code=405
-                    )
-                    await response(scope, receive, send)
-                    return
-
             match = route.path_regex.match(scope["path"])
             if match:
+                if route.methods:
+                    if scope["method"].lower() not in route.methods:
+                        response = JSONResponse(
+                            {"Error": "Method not allowed"}, status_code=405
+                        )
+                        await response(scope, receive, send)
+                        return
+
                 path_params = match.groupdict()
                 query_params = {
                     k.decode(): v[0] for k, v in parse_qs(scope["query_string"]).items()
