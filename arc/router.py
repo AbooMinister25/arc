@@ -244,7 +244,10 @@ class Router:
                         )
                     except InvalidTypeError as e:
                         # If the type conversion failed, return an error response
-                        response = JSONResponse({"Error": e}, status_code=400)
+                        response = JSONResponse(
+                            {"Error": "Bad request, failed to parse parameters"},
+                            status_code=400,
+                        )
                         await response(scope, receive, send)
                         return
 
