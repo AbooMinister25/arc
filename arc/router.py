@@ -242,7 +242,7 @@ class Router:
                         query_params, path_params = parse_params(
                             query_params, path_params, route.handler.__annotations__
                         )
-                    except InvalidTypeError as e:
+                    except InvalidTypeError:
                         # If the type conversion failed, return an error response
                         response = JSONResponse(
                             {"Error": "Bad request, failed to parse parameters"},
@@ -251,7 +251,16 @@ class Router:
                         await response(scope, receive, send)
                         return
 
-                response = await route.handler(*path_params.values(), **query_params)
+                try:
+                    response = await route.handler(
+                        *path_params.values(), **query_params
+                    )
+                except TypeError as e:
+                    response = JSONResponse(
+                        {"Error": f"Missing required query parameter {str(e)[47:-1]}"},
+                        status_code=422,
+                    )
+
                 await response(scope, receive, send)
                 return
 
