@@ -1,5 +1,6 @@
-import json
 from typing import Any, Optional, Union
+
+import orjson
 
 from arc.types import CoroutineFunction
 
@@ -25,7 +26,7 @@ class HTTPResponse:
             body = body.encode("utf-8")
         self.body = body
         self.status_code = status_code
-        self.headers = headers if headers is not None else {}
+        self.headers = headers or {}
         if content_type is not None:
             self.headers["content-type"] = content_type
 
@@ -66,7 +67,7 @@ class JSONResponse(HTTPResponse):
     """
 
     def __init__(self, data: Any, *args, **kwargs):
-        body = json.dumps(data)
+        body = orjson.dumps(data)
 
         super().__init__(
             body,

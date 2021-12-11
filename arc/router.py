@@ -3,6 +3,8 @@ import re
 from typing import Any, Optional, Pattern, Sequence
 from urllib.parse import parse_qs
 
+from pydantic import ValidationError, validate_arguments, parse_obj_as
+
 from arc.errors import InvalidTypeError
 from arc.responses import JSONResponse
 from arc.types import CoroutineFunction, DCallable
@@ -63,7 +65,7 @@ def compile_path_regex(path: str, path_params: list[str]) -> Pattern:
 def parse_params(
     q_params: dict[str, Any],
     p_params: dict[str, Any],
-    types: dict[str, type],
+    types: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """
     Function used to parse query and path parameters to their corresponding types
@@ -72,40 +74,16 @@ def parse_params(
     :param p_params: a dictionary of path parameters and their values
     :param types: A dictionary of the handler function's parameter typess
     :return: A tuple of two dicts which contain the parsed query and path parameters
+    :raises ValidationError: Raises pydantic's ValidationError upon encountering an invalid value which
+    cannot be parsed.
     """
 
-    parsed_q = {}  # Parsed query parameters
-    parsed_p = {}  # Paresd path parameters
-
-    for name, value in q_params.items():
-        type_ = types.get(name)
-        if type_ is None:
-            # If the type wasn't declared for the parameter,
-            # continue to the next iteration of the loop
-            continue
-
-        try:
-            # Try to cast the parameter to the corresponding type, otherwise raise an error
-            parsed_q[name] = type_(value)
-        except ValueError:
-            raise InvalidTypeError(
-                f"Could not parse query parameter {name} to {type_.__name__}"
-            )
-
-    for name, value in p_params.items():
-        type_ = types.get(name)
-        if type_ is None:
-            # If the type wasn't declared for the parameter,
-            # continue to the next iteration of the loop
-            continue
-
-        try:
-            # Try to cast the parameter to the corresponding type, otherwise raise an error
-            parsed_p[name] = type_(value)
-        except ValueError:
-            raise InvalidTypeError(
-                f"Could not parse query parameter {name} to {type_.__name__}"
-            )
+    # Parses the parameters using a dictionary comprehension. `k` is the current
+    # key in the original parameters dictionary, and `v` is the value to be casted.
+    # The function fetches a type from `types` corresponding to the current key,
+    # and if there isn't one, uses Any for casting, which effectively doesn't cast
+    parsed_q = {k: parse_obj_as(types.get(k) or Any, v) for k, v in q_params.items()}
+    parsed_p = {k: parse_obj_as(types.get(k) or Any, v) for k, v in p_params.items()}
 
     return parsed_q, parsed_p
 
@@ -242,10 +220,13 @@ class Router:
                         query_params, path_params = parse_params(
                             query_params, path_params, route.handler.__annotations__
                         )
-                    except InvalidTypeError:
+                        print(query_params)
+                    except ValidationError as e:
                         # If the type conversion failed, return an error response
                         response = JSONResponse(
-                            {"Error": "Bad request, failed to parse parameters"},
+                            {
+                                "Error": f"Bad request, failed to parse parameters: {e.errors()[0]['msg']}"
+                            },
                             status_code=400,
                         )
                         await response(scope, receive, send)
@@ -255,7 +236,7 @@ class Router:
                     response = await route.handler(
                         *path_params.values(), **query_params
                     )
-                except TypeError as e:
+                except ValidationError as e:
                     response = JSONResponse(
                         {"Error": f"Missing required query parameter {str(e)[47:-1]}"},
                         status_code=422,
