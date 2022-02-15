@@ -2,8 +2,8 @@ import pytest
 from httpx import AsyncClient
 
 from arc import Arc
-from arc.responses import HTTPResponse
-from arc.router import Route
+from arc.http.responses import HTTPResponse
+from arc.routing import Route
 
 
 def test_create_app():

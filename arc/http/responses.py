@@ -6,13 +6,28 @@ from arc.types import CoroutineFunction
 
 
 class HTTPResponse:
-    """
-    Base HTTP response object
+    """Base HTTP response object
 
-    :param body: The body of the response object.
-    :param status_code: The status code of the resonse, defaults to 200.
-    :param headers: A dict of the headers for the response.
+    Provides the common functionality between all the other
+    HTTP response classes.
+
+    Args:
+        body: The body of the response, can be either
+          bytes or a string
+        status_code: The status code of the response,
+          defaults to 200.
+        headers: A dictionary which represents the HTTP
+          headers for the response.
+
+    Attributes:
+        body: The body of the response, is either bytes
+          or a string.
+        status_code: The status code of the response.
+        headers: A dictionary which represents the HTTP
+          headers for the response.
     """
+
+    content_type: Optional[str] = None
 
     def __init__(
         self,
@@ -32,6 +47,11 @@ class HTTPResponse:
 
     @property
     def raw_headers(self) -> list[tuple[bytes, bytes]]:
+        """A list of raw header values
+
+        Returns:
+            A list of tuples which contain bytes.
+        """
         if self.headers is None:
             return []
 
@@ -60,10 +80,16 @@ class HTTPResponse:
 
 
 class JSONResponse(HTTPResponse):
-    """
-    JSON response class. Used for sending JSON responses
+    """HTTP response with the content being JSON
 
-    :param data: The JSON data for the response to return.
+    Takes and serializes the given JSON using `orjson`.
+
+    Args:
+        data: The JSON data for the response to use.
+
+    Attributes:
+        body: The serialized form of the JSON provided to
+          the response.
     """
 
     def __init__(self, data: Any, *args, **kwargs):
@@ -75,3 +101,9 @@ class JSONResponse(HTTPResponse):
             *args,
             **kwargs,
         )
+
+
+class HTMLResponse(HTTPResponse):
+    """HTTP response with the content being HTML"""
+
+    content_type = "text/html"
